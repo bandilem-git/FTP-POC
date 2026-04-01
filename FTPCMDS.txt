@@ -1,0 +1,3 @@
+ls: list all available files 
+down: download a file off the server
+up: upload a file to the server

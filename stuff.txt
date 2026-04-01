@@ -1,0 +1,6 @@
+CORE FUNCTIONALITY:
+(must haves)
+sending files over a network (any)
+receiving files over a network, audio files speifically and image too
+(nice to have) 
+anonymous support
