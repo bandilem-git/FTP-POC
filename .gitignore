@@ -3,3 +3,4 @@ forClient/*
 filea/*
 logs/*
 *.o
+/feature progress
