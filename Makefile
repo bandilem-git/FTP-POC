@@ -5,7 +5,7 @@ CLIENTFILES:= COLORS.cpp client.cpp
 CLIENTOFILES:= COLORS.o client.o
 CLANG:= clang++
 LDFLAGS:= -lpthread
-LOGGING := log.cpp baselogger.cpp ctrllogger.cpp loggermain.cpp
+LOGGING := log.cpp baselogger.cpp controllogger.cpp datalogger.cpp loggermain.cpp
 .PHONY: all
 all: 
 	$(COMPILE) $(SERVERFILES)
