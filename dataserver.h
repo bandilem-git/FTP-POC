@@ -1,13 +1,7 @@
 #ifndef DATASERVER_H
 #define DATASERVER_H
-#include "controlserver.h"
-#include <queue>
-#include <utility> //has pair
-#include <vector>
-#include <err.h>
-#include <arpa/inet.h>
-#include <filesystem>
-#include <regex>
+#include "baseserver.h"
+
 /*
 SERVER GOALS:
 copying files from server a to client b

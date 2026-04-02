@@ -1,18 +1,7 @@
 #ifndef CONTROLSERVER_H
 #define CONTROLSERVER_H
 
-#include <sys/socket.h>
-#include <sstream>
-#include <fstream>
-
-#include <filesystem>
-#include <sys/stat.h>
-#include <cstdlib>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#include "COLORS.cpp"
-#include <thread>
+#include "baseserver.h"
 
 
 /*
