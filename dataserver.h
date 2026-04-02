@@ -1,17 +1,15 @@
 #ifndef DATASERVER_H
 #define DATASERVER_H
 #include "baseserver.h"
-
+#define CONTROLPORT 8081
 /*
 SERVER GOALS:
 copying files from server a to client b
 */ 
-class DataServer{
+class DataServer: public DataServer{
     private:
-        struct stat sb; //for file reading
-        int port = 8081;
+        int port = CONTROLPORT;
         int numConnections;
-        std::vector<int> connections; 
         int ConnectionServerSocket;
         void DOWNLOAD(int socket,const char* file);
         void UPLOAD(int socket,const char* file);

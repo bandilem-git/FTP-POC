@@ -32,12 +32,25 @@
 
 //includes 
 #include "COLORS.cpp"
+#include "baselogger.h"
 
+enum CONNECTIONS{
+    CONTROL,
+    DATA
+};
 
 class BaseServer{
     private:
-
+        std::vector<BaseLogger*> observers();
+        void BindAndListen(int port);
     public:
+    //shared 
+        struct stat sb;
+        int ConnectionServerSocket = socket(AF_INET, SOCK_STREAM, 0);//IPv4 protocol, SOCK_STREAM = TCP connection]
+        void subscribe(BaseLogger* observer);
+        void notify(CONNECTIONS connection, Log l);
+        BaseServer();
+        virtual void start() = 0;
 
 };
 

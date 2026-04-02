@@ -8,23 +8,15 @@
 Server class: emulating (CONTROL SERVER)FILE TRANSFER PROTOCOL in C++17
 */
 
-enum accountType{
-    ANONYMOUS,
-    USER,
-    ADMIN
-};
-
-class ControlServer{
+class ControlServer : public BaseServer{
     private:
 
     struct stat sb;
-    int ConnectionServerSocket = socket(AF_INET, SOCK_STREAM, 0);//IPv4 protocol, SOCK_STREAM = TCP connection]
     std::string getListOfFiles();
     int getNumFiles();
     bool fileExists(std::string x);
     std::vector<std::string> existingFiles;
     void update();
-    accountType accType;
 
     public:
     
