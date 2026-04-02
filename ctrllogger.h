@@ -5,9 +5,10 @@
 
 class ControlLogger : public BaseLogger{
     private:
-    
+        std::string targetFile = "logs/control.txt";
+        
     public:
-    
+        ControlLogger();
 };
 
 #endif
