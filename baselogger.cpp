@@ -34,7 +34,7 @@ void BaseLogger::generateLog(STATUS status, std::string target, std::string desc
     Log toLog(status,desc);
     //add this to the end of target file
     std::string targetDir = "logs/"+target;
-
+    std::lock_guard<std::mutex> lock(loggerLock);
     std::ofstream targetFile(targetDir,std::ios::app); // append mode 
 
     if(!targetFile.is_open()){
