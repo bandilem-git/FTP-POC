@@ -25,7 +25,7 @@ BaseLogger::BaseLogger(std::string target, std::string desc){
         throw std::runtime_error("Failed to open log file");
     }
 
-    std::cout << to_green( "logs/"+target+" had no issues while initialising");
+    std::cout << to_green( "logs/"+target+" had no issues while initialising\n");
     file.close();
 }
 

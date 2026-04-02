@@ -20,7 +20,7 @@ DataLogger::DataLogger(std::string target) : BaseLogger(target, ""){//Base Logge
     }
 
     controlFile.close();
-    this->generateLog(STARTUP, target, "CONTROL CHANNEL IN USE");
+    this->generateLog(STARTUP, target, "DATA CONNECTION STARTING UP\n");
 
 }
 

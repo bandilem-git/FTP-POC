@@ -20,7 +20,7 @@ ControlLogger::ControlLogger(std::string target) : BaseLogger(target, ""){//Base
     }
 
     controlFile.close();
-    this->generateLog(STARTUP, target, "CONTROL CHANNEL IN USE");
+    this->generateLog(STARTUP, target, "CONTROL CHANNEL STARTING UP");
 
 }
 

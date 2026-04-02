@@ -26,7 +26,7 @@ std::string Log::getFormattedData(){
     std::string statusComponent = "["+statusToString()+"]";
     std::string dateComponent = "["+dateAsString()+"]";
     std::string timeComponent = "["+timeAsString()+"]";
-    return statusComponent + dateComponent + timeComponent + " - \"" +desc+ "\" ";
+    return statusComponent + dateComponent + timeComponent + " - \"" +desc+ "\" \n";
 }
 
 std::string Log::dateAsString(){//DD/MM/YY
