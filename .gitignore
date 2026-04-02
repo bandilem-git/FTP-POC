@@ -6,3 +6,4 @@ files/*
 *.o
 /feature progress
 /forClient
+logTest

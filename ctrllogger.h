@@ -3,12 +3,13 @@
 
 #include "baselogger.h"
 
+
 class ControlLogger : public BaseLogger{
     private:
-        std::string targetFile = "logs/control.txt";
-        
+        std::string target;
     public:
-        ControlLogger();
+        ControlLogger(std::string target);
+        void onEvent(Log log);
 };
 
 #endif

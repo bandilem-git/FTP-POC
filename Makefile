@@ -5,6 +5,7 @@ CLIENTFILES:= COLORS.cpp client.cpp
 CLIENTOFILES:= COLORS.o client.o
 CLANG:= clang++
 LDFLAGS:= -lpthread
+LOGGING := log.cpp baselogger.cpp ctrllogger.cpp loggermain.cpp
 .PHONY: all
 all: 
 	$(COMPILE) $(SERVERFILES)
@@ -17,6 +18,7 @@ clean:
 	rm -f *.o
 	rm -f servers
 	rm -f client
+	rm -f logTest
 
 .PHONY: run-client
 run-client: client
@@ -25,3 +27,11 @@ run-client: client
 .PHONY: run-server
 run-server: servers
 	./servers
+
+
+#for testing logging#
+.PHONY: test-log
+test-log:
+	$(COMPILE) $(LOGGING)
+	$(CLANG) *.o -o logTest
+	./logTest 
