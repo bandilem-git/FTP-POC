@@ -1,4 +1,4 @@
-#include "ctrllogger.h"
+#include "controllogger.h"
 
 ControlLogger::ControlLogger(std::string target) : BaseLogger(target, ""){//Base Logger constructor constructs and checks if it exists
     this->target = target;
