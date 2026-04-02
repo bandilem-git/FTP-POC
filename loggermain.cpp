@@ -1,7 +1,8 @@
-#include "ctrllogger.h"
-
+#include "controllogger.h"
+#include "datalogger.h"
 int main(){
-    BaseLogger* log = new ControlLogger("control.txt");
-    
-    delete log;
+    BaseLogger* ctrlLog = new ControlLogger("controlconnection.txt");
+    BaseLogger* dataLog = new  DataLogger("dataconnection.txt");
+    delete ctrlLog;
+    delete dataLog;
 }
