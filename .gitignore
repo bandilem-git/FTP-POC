@@ -1,6 +1,6 @@
 *.py
 forClient/*
-filea/*
+files/*
 logs/*
 *.o
 /feature progress
