@@ -13,6 +13,7 @@ The aim of this project is to resimulate basic FTP over a network
 > make run client 
 
 ## CLEANING THE PROJECT
+> make clean
 
 ## DESCRIPTION
 
