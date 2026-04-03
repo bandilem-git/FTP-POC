@@ -8,6 +8,7 @@ class DataLogger: public BaseLogger{
     public:
         DataLogger(std::string target);
         void onEvent(Log& log);
+        ~DataLogger();
 };
 
 #endif

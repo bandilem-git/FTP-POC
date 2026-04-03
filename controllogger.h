@@ -10,6 +10,7 @@ class ControlLogger : public BaseLogger{
     public:
         ControlLogger(std::string target);
         void onEvent(Log& log);
+        ~ControlLogger();
 };
 
 #endif
