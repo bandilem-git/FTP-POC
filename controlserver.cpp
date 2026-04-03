@@ -143,6 +143,8 @@ void ControlServer::start(){
 
                 //list all available commands in FTPCMDS.txt
                 if(msg == "cmds\n"||msg == "cmds\r\n"){
+                    this->notify(CONTROL, Log(LOG, std::to_string(socket) + " - CLIENT REQUESTED AVAILABLE COMMANDS"));
+
                     std::string blankInput = "=================================\n";
                     blankInput +="|\t";
                     blankInput += "LIST OF COMMANDS\t|";
@@ -151,6 +153,8 @@ void ControlServer::start(){
                     blankInput+= getavailableCommands();
                         
                     if(send(socket, blankInput.c_str(), blankInput.size(), 0) < 0){
+                        this->notify(CONTROL, Log(ERROR, std::to_string(socket) + " - COULD NOT SEND LIST AVAILABLE COMMANDS TO CLIENT"));
+
                         close(socket);
                         throw std::runtime_error("CONNECTION SERVER: COULD NOT SEND REQUIREMENTS");
                     }
@@ -174,14 +178,18 @@ void ControlServer::start(){
 
 bool ControlServer::fileExists(std::string x){
     std::lock_guard<std::mutex> lck(mtx);
+    this->notify(CONTROL, Log(LOG,"FILE SEARCH INITIATED"));
     std::cout << "COMPARING INITIATED" << std::endl;
 
     for(const std::string& y : existingFiles){
         if(y == x){
+            this->notify(CONTROL, Log(LOG,"FILE FOUND"));
             std::cout << "FILE HAS BEEN FOUND HENCE TRANSFER IS INITIATING " << std::endl;
             return true;
         }
     }
+    this->notify(CONTROL, Log(LOG,"FILE WAS NOT FOUND"));
+
     std::cout << "FILE CANNOT BE FOUND HENCE NO TRANSFER" << std::endl;
     return false;
 }
