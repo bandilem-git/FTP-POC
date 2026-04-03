@@ -12,9 +12,10 @@ void DataServer::start(){
             throw std::runtime_error("error while accepting connection");
         }
         numConnections++;
-
+        this->notify(DATA, Log(LOG, "Client connected on data port: " + std::to_string(tp)));
         
         std::thread t ([this](int socket){//thread that initiates file transfer
+        this->notify(DATA, Log(LOG, "Thread started for data socket: " + std::to_string(socket)));
         try    //get the name of the file that you want to clone
         {   char buffer[1024] = {0};
             if(recv(socket, buffer, 128 ,0) < 0){
@@ -23,6 +24,7 @@ void DataServer::start(){
             }
             //convert char [] to str
             std::string toClone = (buffer);
+            this->notify(DATA, Log(LOG, std::to_string(socket) + " RAW HEADER: " + toClone));
             size_t colonPos = toClone.find(":");
             if (colonPos == std::string::npos) {
                 std::cout << "Invalid header received: " << toClone << std::endl;
@@ -33,34 +35,41 @@ void DataServer::start(){
             std::string type = toClone.substr(0, colonPos);
             std::string fileEx = toClone.substr(colonPos + 1);
 
+            this->notify(DATA, Log(LOG, std::to_string(socket) + " TYPE: " + type + " FILE: " + fileEx));
+
             if(type == "DOWNLOAD"){
+                this->notify(DATA, Log(LOG,std::to_string(socket) + " DOWNLOAD requested: " + toClone));
+                this->notify(DATA, Log(LOG,"Opening file: files/" + toClone));
                 DOWNLOAD(socket,fileEx.c_str());
             }
             else if(type == "UPLOAD"){
                 UPLOAD(socket,fileEx.c_str());
             }
+
+            this->notify(DATA, Log(LOG, "Thread ended for data socket: " + std::to_string(socket)));
+
         }
             catch(std::exception& x){
                 std::cout << x.what() << std::endl;
             }
+
+
         }, tp);
 
         
         t.detach();
 
-    
         }
         catch(const std::exception& x){
             std::cout << x.what();
         }
-    }
 
-    
-    
+    }
 }
 
 void DataServer::DOWNLOAD(int socket,const char* file){  
     std::string toClone(file);
+    
     std::cout << "Downloading file: " << toClone<< std::endl; 
 
     if(toClone.find(".")!= std::string::npos){
@@ -86,6 +95,7 @@ void DataServer::DOWNLOAD(int socket,const char* file){
 
         //record file size
         int64_t fileSize = toDownload.tellg();
+        this->notify(DATA, Log(LOG, "File size: " + std::to_string(fileSize) + " bytes"));
 
         //seek to beginnning again
         toDownload.seekg(0, std::ios::beg);
