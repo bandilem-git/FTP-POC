@@ -1,12 +1,13 @@
 # files
- *.py
+*.py
 forClient/*
 files/*
 *.o
 logTest
 client
+/pythonTesting/*
 
-#folders
+# folders
 /logs
 /feature progress
 /forClient
