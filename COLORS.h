@@ -1,3 +1,6 @@
+#ifndef COLORS_H
+#define COLORS_H
+
 #include <iostream>
 #include <string>
 
@@ -59,3 +62,5 @@ inline std::string to_brightCyan(std::string x){
 inline std::string to_brightWhite(std::string x){
     return("\033[97m"+x+"\033[0m");
 }
+
+#endif
