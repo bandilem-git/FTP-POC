@@ -6,6 +6,12 @@ void ControlServer::start(){
         try{
         //accepting client connection
         int clientSocket = accept(ConnectionServerSocket, nullptr, nullptr);
+        if(clientSocket > 0 ){
+            this->notify(CONTROL, Log(LOG, std::to_string(clientSocket) + ": client has connected "));
+        }
+        else{
+            this->notify(CONTROL, Log(ERROR, std::to_string(clientSocket) + ": client could not conect"));
+        }
         std::thread t([this](int socket) {
             try{
                 while(true){               
@@ -17,12 +23,13 @@ void ControlServer::start(){
                     close(socket);
                     break;
                 }
-
                 //convert char[] to string  
                 std::string msg(buffer); 
-                    
+                this->notify(CONTROL, Log(LOG, std::to_string(socket) + ": sent a message: " + msg.substr(0,msg.length()-1)));
+
                 //q to quit
                 if(msg == "q\n"|| msg == "q\r\n"){
+                    this->notify(CONTROL, Log(LOG, std::to_string(socket) + " is Disconecting"));
                     std::cout << "Disconnecting the client"<< std::endl;
                     break;
                 }
@@ -31,8 +38,10 @@ void ControlServer::start(){
                 if(msg == "up\n"|| msg == "up\r\n"){
 
                     char resp[3]= "OK";
+                    this->notify(CONTROL, Log(LOG,std::string(resp) + " response sent to client: " + std::to_string(socket)));
 
                     if(send(socket,resp ,sizeof(resp),0) < 0){
+                        this->notify(CONTROL, Log(ERROR, "COULD NOT SEND OK RESPONSE TO CLIENT: " + std::to_string(socket)));
                         throw std::runtime_error("CONTROL SERVER: COULD NOT ACCEPT FILE");
                     };
 
@@ -47,8 +56,12 @@ void ControlServer::start(){
                         files = getListOfFilesUnsafe();
 
                     }
-
-                    send(socket, files.c_str(), files.size(), 0);
+                    this->notify(CONTROL, Log(LOG,std::to_string(socket) + "CLIENT REQUESTED LIST OF COMMANDS"));
+                    if(send(socket, files.c_str(), files.size(), 0) < 0){
+                        this->notify(CONTROL, Log(ERROR,"COULD NOT SEND THE LIST TO THE CLIENT"));
+                        close(socket);
+                        throw std::runtime_error("COULD NOT SEND THE LIST TO THE CLIENT");
+                    }
 
 
                 }
@@ -56,6 +69,7 @@ void ControlServer::start(){
                 // files to download
                 if(msg == "down\n"|| msg == "down\r\n"){
                     //inform client about available files
+                    this->notify(CONTROL, Log(LOG,std::to_string(socket) + " - PHASE 1: CLIENT REQUESTED FILE"));
                     std::string templateString;
                     {
                         std::lock_guard<std::mutex> lck(mtx);
@@ -66,15 +80,28 @@ void ControlServer::start(){
                     templateString+="\n";
                     templateString+="enter name of the file that you want (case sensitive)\n";
 
+                    this->notify(CONTROL, Log(LOG,std::to_string(socket) + " - PHASE 1: CLIENT REQUESTED FILE"));
+
                     //send data to client
-                    send(socket, templateString.c_str(), templateString.size(), 0);
+                    if(send(socket, templateString.c_str(), templateString.size(), 0) < 0){
+                        this->notify(CONTROL, Log(ERROR,std::to_string(socket) + " - PHASE 1 FAILED"));
+                        this->notify(CONTROL, Log(ERROR,std::to_string(socket) + " - PHASE 1: CLIENT DID NOT RECEIVE LIST OF FILES "));
+
+                        close(socket);
+                        throw std::runtime_error("CONTROL CONNECTION: COULD NOT SEND LIST OF FILES TO CLIENT");
+                    }
 
                     //receive file to download
                     char fileToDownload[1024] = {0};
                     int bytes = recv(socket, fileToDownload, sizeof(fileToDownload), 0);
 
+                    std::string ftd (fileToDownload);
+                    this->notify(CONTROL, Log(LOG,std::to_string(socket) + " - PHASE 1 SUCCESS"));
+                    this->notify(CONTROL, Log(LOG,std::to_string(socket) + " - PHASE 2: CLIENT REQUESTED FILE \"" + ftd.substr(0,ftd.length()-1) +"\"" ));
+
                     if(bytes <= 0){
                         close(socket);
+                        this->notify(CONTROL, Log(ERROR,std::to_string(socket) + " - PHASE 2 FAILED"));
                         break;
                     }
                     //convert data received from char arr to string
@@ -85,23 +112,33 @@ void ControlServer::start(){
 
                     //find file 
                     if(!fileExists(tryDownlaod)){
+                        this->notify(CONTROL, Log(ERROR,std::to_string(socket) + " - PHASE 2 FAILED"));
+                        this->notify(CONTROL, Log(ERROR, tryDownlaod + "DOES NOT EXIST"));
+
                         //send the error message to the client
                         std::string errResp = to_red(tryDownlaod + " is a file that does not exist. \n PLEASE TRY AGAIN:");
                         send(socket, errResp.c_str(), errResp.size(), 0);
 
                         //tell ConnectionServer that a file that doesn't exist is attempting to be downloaded
                         std::cout << tryDownlaod << " does not exist on the Connection Server\n";
-                            
-                        //TODO: add error logging
                         continue;
                     }
                     
-                    std::string INITIATE = "8081:"+ tryDownlaod;
+                    this->notify(CONTROL, Log(LOG, std::to_string(socket) + " - PHASE 2 SUCCESS"));
+
+
+                    std::string INITIATE = "8081:"+ tryDownlaod;// not necessary
+
+                    this->notify(CONTROL, Log(LOG, std::to_string(socket) + " - PHASE 3: FILE TRANSFERRING"));
 
                     if(send(socket, INITIATE.c_str(), INITIATE.size(), 0) < 0){
                         close(socket);
+                        this->notify(CONTROL, Log(ERROR, std::to_string(socket) + " - PHASE 3: FAILED"));
+
                         throw std::runtime_error("CONNECTION SERVER: COULD NOT SEND REQUIREMENTS");
                     }
+                    this->notify(CONTROL, Log(ERROR, std::to_string(socket) + " - PHASE 3: SUCCESS"));
+
                 }
 
                 //list all available commands in FTPCMDS.txt

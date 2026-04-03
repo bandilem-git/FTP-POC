@@ -1,5 +1,7 @@
 #include "dataserver.h"
 #include "controlserver.h"
+#include "controllogger.h"
+#include "datalogger.h"
 
 int main(){
     //ensure the files directory always exists
@@ -19,14 +21,22 @@ int main(){
 
     }
 
-    std::thread dataServerThread([]()
+    //startup loggers
+    ControlLogger* ctrlLOGS = new ControlLogger("controlconnection");
+    DataLogger* dataLOGS = new DataLogger("dataconnection");
+
+    DataServer dataserver;
+    ControlServer controlserver;
+
+    dataserver.subscribe(DATA, dataLOGS);
+    controlserver.subscribe(CONTROL, ctrlLOGS);
+
+    std::thread dataServerThread([&]()
     {    
-        DataServer dataserver;
         dataserver.start();
     });
     
-    std::thread connectionServerThread([](){
-        ControlServer controlserver;
+    std::thread connectionServerThread([&](){
         controlserver.start();
 
     });
@@ -34,6 +44,8 @@ int main(){
 
     connectionServerThread.join();
 
+    delete ctrlLOGS;
+    delete dataLOGS;
     
     return 0;
 }

@@ -46,6 +46,8 @@ void BaseServer::BindAndListen(int port){
 
 void BaseServer::notify(CONNECTIONS connection, Log log){
     for(BaseLogger* x: observers[connection]){
-        x->onEvent(&log);
+        x->onEvent(log);
     }
 }
+
+BaseServer::~BaseServer(){}
