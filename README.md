@@ -5,21 +5,38 @@ The aim of this project is to resimulate basic FTP over a network
 
 *this is a component for a bigger project*
 
-## REQUIREMENTS
-> compiler : clang++  
-> C++ version: c++ 17 
+## DESCRIPTION
+This repo is a recreation of an FTP server not following all the RFC Standards but follows general convention 
+user can upload file, download files and review logs
 
-## BUILDING PROJECT
-> make all    
-> make run-servers    
-> make run client 
+The architecture uses a dual-channel design:
+
+Control server (commands and control flow)
+Data server (file transfer operations)
+
+## Requirements
+
+- Compiler: clang++
+- Standard: C++17
+- Recommended OS: Linux / Unix-like environment
+
+## Building the Project
+
+Build all components:
+
+### BUILDING PROJECT
+
+#### RUN SERVERS
+- make run-server
+
+#### RUN CLIENT
+- make run-client
 
 ## CLEANING THE PROJECT
+***remove compiled binaries***
 > make clean
 
-## DESCRIPTION
-This repo is a recreation of an FTP server not following all the RFC's but follows general convention 
-user can upload file, download files and review logs
+
 
 ### CURRENT FEATURES
 - Uploading Files: up + follow instructions
