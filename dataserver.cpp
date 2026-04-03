@@ -1,41 +1,7 @@
 #include "dataserver.h"
 
 //every time theres a connection add them to a queue of people that 
-DataServer::DataServer(){
-    //IPv4 protocol, SOCK_STREAM = TCP connection]
-    ConnectionServerSocket = (socket(AF_INET, SOCK_STREAM, 0));
-
-    if(ConnectionServerSocket < 0){
-        throw std::runtime_error("Error while initialising socket");
-    }
-    //SocketConnectionServer
-
-
-    //ConnectionServer Address
-    //sockadde is the data type that stores network information
-    sockaddr_in ConnectionServerAddress;
-    ConnectionServerAddress.sin_family = AF_INET;
-    ConnectionServerAddress.sin_port = htons(port);// port to Network byte order 
-    ConnectionServerAddress.sin_addr.s_addr = INADDR_ANY;// accept any ip address
-
-
-    //binding
-   if( bind(
-        ConnectionServerSocket,
-        (struct sockaddr*) &ConnectionServerAddress,
-        sizeof(ConnectionServerAddress)
-    ) < 0){
-        close(ConnectionServerSocket);
-        throw std::runtime_error("error while binding");
-    };
-
-    if(listen(ConnectionServerSocket, 5) < 0){
-        close(ConnectionServerSocket);
-        throw std::runtime_error("error while listening for incoming clients");
-    };
-
-
-}
+DataServer::DataServer() : BaseServer(DATAPORT){}
  
 void DataServer::start(){
     while (true){

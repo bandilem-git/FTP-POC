@@ -1,5 +1,5 @@
 #include "controlserver.h"
-ControlServer::ControlServer() : BaseServer(){}
+ControlServer::ControlServer() : BaseServer(CONTROLPORT){}
 
 void ControlServer::start(){
     while(true){

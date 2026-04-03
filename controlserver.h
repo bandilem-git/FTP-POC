@@ -2,7 +2,7 @@
 #define CONTROLSERVER_H
 
 #include "baseserver.h"
-
+#define CONTROLPORT 8080
 
 /*
 Server class: emulating (CONTROL SERVER)FILE TRANSFER PROTOCOL in C++17
@@ -11,20 +11,19 @@ Server class: emulating (CONTROL SERVER)FILE TRANSFER PROTOCOL in C++17
 class ControlServer : public BaseServer{
     private:
 
-    struct stat sb;
-    std::string getListOfFiles();
-    int getNumFiles();
-    bool fileExists(std::string x);
-    std::vector<std::string> existingFiles;
-    void update();
+        std::string getListOfFiles();
+        int getNumFiles();
+        bool fileExists(std::string x);
+        std::vector<std::string> existingFiles;
+        void update();
 
     public:
     
-    std::mutex mtx;
-    ControlServer();
-    std::string getavailableCommands();
-    void start();
-    std::string getListOfFilesUnsafe();//threaded operations
+        std::mutex mtx;
+        ControlServer();
+        std::string getavailableCommands();
+        void start();
+        std::string getListOfFilesUnsafe();//threaded operations
 
 };
 

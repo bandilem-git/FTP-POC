@@ -25,6 +25,7 @@
 #include <queue>
 #include <utility> //has pair
 #include <vector>
+#include <map>
 
 //c++ incldes
 #include <thread>
@@ -41,17 +42,17 @@ enum CONNECTIONS{
 
 class BaseServer{
     private:
-        std::vector<BaseLogger*> observers;
+        std::map<CONNECTIONS,std::vector<BaseLogger*>> observers;
         void BindAndListen(int port);
     public:
-    //shared 
+        void subscribe(CONNECTIONS type ,BaseLogger* observer);
+        void notify(CONNECTIONS connection, Log l);
+        BaseServer(int port);
+        virtual void start() = 0;
+    protected:
+        //shared 
         struct stat sb;
         int ConnectionServerSocket = socket(AF_INET, SOCK_STREAM, 0);//IPv4 protocol, SOCK_STREAM = TCP connection]
-        void subscribe(BaseLogger* observer);
-        void notify(CONNECTIONS connection, Log l);
-        BaseServer();
-        virtual void start() = 0;
-
 };
 
 #endif
