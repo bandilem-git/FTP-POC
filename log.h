@@ -14,7 +14,8 @@ enum STATUS{
     TEST,
     STARTUP,
     SHUTDOWN,
-    DOWNLOADING
+    DOWNLOADING,
+    UPLOADING
 };
 
 class Log{ 

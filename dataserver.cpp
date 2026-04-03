@@ -114,7 +114,6 @@ void DataServer::DOWNLOAD(int socket,const char* file){
         char chunk[4096];
         int64_t sent = 0;
         while(toDownload.read(chunk, sizeof(chunk))){
-            
             int64_t s = send(socket,chunk,toDownload.gcount(),0);
             if(s < 0){
                 close(socket);//g count = numchars extracted
@@ -155,7 +154,6 @@ void DataServer::UPLOAD(int socket,const char* file){
     }
     this->notify(DATA,Log(LOG, "RECEIVED THE SIZE OF THE FILE: " + std::to_string(sizeOfUpFile)));
 
-    bool originalname = true;
     int i = countExistingfiles(fileName); // if any files have the same name 
 
     if(i > 0){
@@ -179,18 +177,33 @@ void DataServer::UPLOAD(int socket,const char* file){
     char chunk[4096] ={0};
     int64_t totalReceived = 0;
     this->notify(DATA,Log(UPLOADING, "UPLOAD PROCESS BEGINNING"));
-    while(totalReceived < sizeOfUpFile){
-        int bytesRec = recv(socket,chunk, sizeof(chunk),0);
-        if(bytesRec < 0){
-            this->notify(DATA, Log(ERROR,"COULD NOT UPLOAD THE WHOLE FILE"));
-            close(socket);
-            throw std::runtime_error("DATASERVER: Error while copying files");
+
+    while (totalReceived < sizeOfUpFile) {
+            int64_t remaining = sizeOfUpFile - totalReceived;
+            size_t toRead = (remaining < (int64_t)sizeof(chunk)) ? (size_t)remaining : sizeof(chunk);
+
+            int bytesRec = recv(socket, chunk, toRead, 0);
+            
+            if (bytesRec < 0) {
+                this->notify(DATA, Log(ERROR, "Recv error during transfer: " + std::string(strerror(errno))));
+                break; // Exit loop to allow cleanup
+            } 
+            if (bytesRec == 0) {
+                this->notify(DATA, Log(ERROR, "Client closed connection prematurely at " + std::to_string(totalReceived) + " bytes"));
+                break;
+            }
+
+            toUpload.write(chunk, bytesRec);
+            totalReceived += bytesRec;
         }
-        toUpload.write(chunk,bytesRec);
-        totalReceived+= bytesRec;
-        this->notify(DATA,Log(UPLOADING, std::to_string(totalReceived) + " Bytes out of "+ std::to_string(sizeOfUpFile)));
-    }
-    
+
+        if (totalReceived == sizeOfUpFile) {
+            this->notify(DATA, Log(LOG, "UPLOAD COMPLETE: " + fileName));
+        } else {
+            this->notify(DATA, Log(ERROR, "UPLOAD INCOMPLETE: Saved " + std::to_string(totalReceived) + "/" + std::to_string(sizeOfUpFile)));
+        }
+
+
     close(socket);
     toUpload.close();
 }
