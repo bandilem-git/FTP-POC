@@ -41,7 +41,7 @@ enum CONNECTIONS{
 
 class BaseServer{
     private:
-        std::vector<BaseLogger*> observers();
+        std::vector<BaseLogger*> observers;
         void BindAndListen(int port);
     public:
     //shared 

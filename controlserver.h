@@ -21,7 +21,7 @@ class ControlServer : public BaseServer{
     public:
     
     std::mutex mtx;
-    ControlServer(int port);
+    ControlServer();
     std::string getavailableCommands();
     void start();
     std::string getListOfFilesUnsafe();//threaded operations

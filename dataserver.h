@@ -6,7 +6,7 @@
 SERVER GOALS:
 copying files from server a to client b
 */ 
-class DataServer: public DataServer{
+class DataServer: public BaseServer{
     private:
         int port = CONTROLPORT;
         int numConnections;
