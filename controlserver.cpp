@@ -258,7 +258,12 @@ void ControlServer::update(){
             std::string outfilename_str = out.string();
             const char* path = outfilename_str.c_str();
 
+            if (stat(path, &sb) != 0) {
+                this->notify(DATA, Log(ERROR, "Stat failed for " + std::string(path) + ": " + strerror(errno)));
+                continue;
+            }
             if (stat(path, &sb) == 0 && !(sb.st_mode & S_IFDIR)){
+                
                 std::string p(path);
                 existingFiles.push_back(p.substr(6));
             }
