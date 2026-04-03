@@ -27,10 +27,10 @@ Build all components:
 ### BUILDING PROJECT
 
 #### RUN SERVERS
-- make run-server
+> make run-server
 
 #### RUN CLIENT
-- make run-client
+> make run-client
 
 ## CLEANING THE PROJECT
 ***remove compiled binaries***
@@ -39,10 +39,16 @@ Build all components:
 
 
 ### CURRENT FEATURES
-- Uploading Files: up + follow instructions
-- Downloading Files: down + follow instructions
-- Concurrent Uploading and Downloading
-- Dual Channel usage
+- Upload files using up command
+- Download files using down command
+- Concurrent uploads and downloads
+- Dual-channel architecture
+- Multi-threaded connection handling
+- Logging system for debugging and monitoring
 
+### NOTE
+This project is intended for educational purposes and focuses on networking fundamentals, multi-threading, file I/O operations, and protocol design.
 
-### FUTURE FEATURES
+## License
+
+This project is for educational use only.
