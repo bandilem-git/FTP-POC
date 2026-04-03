@@ -22,7 +22,10 @@ This repo is a recreation of an FTP server not following all the RFC's but follo
 user can upload file, download files and review logs
 
 ### CURRENT FEATURES
-- Uploading Files: up + ```follow instructions
+- Uploading Files: up + follow instructions
+- Downloading Files: down + follow instructions
+- Concurrent Uploading and Downloading
+- Dual Channel usage
 
 
 ### FUTURE FEATURES
