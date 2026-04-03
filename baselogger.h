@@ -9,7 +9,7 @@
 #include <mutex>
 #include <fstream>
 #include <filesystem>
-#include "COLORS.cpp"
+#include "COLORS.h"
 
 
 class BaseLogger{

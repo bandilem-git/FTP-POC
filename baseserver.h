@@ -32,7 +32,7 @@
 #include <err.h>
 
 //includes 
-#include "COLORS.cpp"
+#include "COLORS.h"
 #include "baselogger.h"
 
 enum CONNECTIONS{

@@ -1,4 +1,5 @@
 #include "dataserver.h"
+#include "controlserver.h"
 
 int main(){
     //ensure the files directory always exists
@@ -13,6 +14,7 @@ int main(){
         std::filesystem::create_directory(path);
     }
     else if(!isDirectory){
+        std::filesystem::remove(path);
         std::filesystem::create_directory(path);
 
     }
@@ -24,7 +26,7 @@ int main(){
     });
     
     std::thread connectionServerThread([](){
-        ControlServer controlserver(8080);
+        ControlServer controlserver;
         controlserver.start();
 
     });
@@ -32,5 +34,6 @@ int main(){
 
     connectionServerThread.join();
 
+    
     return 0;
 }

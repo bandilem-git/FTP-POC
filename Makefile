@@ -1,6 +1,6 @@
 COMPILE:= clang++ -c -std=c++17
-SERVERFILES:= COLORS.cpp controlserver.cpp dataserver.cpp servers.cpp
-SERVEROFILES:= COLORS.o controlserver.o dataserver.o servers.o
+SERVERFILES:= COLORS.cpp baseserver.cpp controlserver.cpp dataserver.cpp servers.cpp
+SERVEROFILES:= COLORS.o baseserver.o controlserver.o dataserver.o servers.o 
 CLIENTFILES:= COLORS.cpp client.cpp
 CLIENTOFILES:= COLORS.o client.o
 CLANG:= clang++
