@@ -1,15 +1,18 @@
 COMPILE:= clang++ -c -std=c++17
-SERVERFILES:= COLORS.cpp controlserver.cpp dataserver.cpp servers.cpp
-SERVEROFILES:= COLORS.o controlserver.o dataserver.o servers.o
-CLIENTFILES:= COLORS.cpp client.cpp
-CLIENTOFILES:= COLORS.o client.o
+SERVERFILES:= baseserver.cpp controlserver.cpp dataserver.cpp servers.cpp
+SERVEROFILES:= baseserver.o controlserver.o dataserver.o servers.o 
+CLIENTFILES:= client.cpp
+CLIENTOFILES:= client.o
 CLANG:= clang++
 LDFLAGS:= -lpthread
+LOGGINGFILES := log.cpp baselogger.cpp controllogger.cpp datalogger.cpp loggermain.cpp
+LOGGINGOFILES:=log.o baselogger.o controllogger.o datalogger.o 
+
 .PHONY: all
 all: 
-	$(COMPILE) $(SERVERFILES)
+	$(COMPILE) $(LOGGINGFILES)  $(SERVERFILES)
 	$(COMPILE) $(CLIENTFILES)
-	$(CLANG) $(SERVEROFILES) -o servers $(LDFLAGS)
+	$(CLANG) $(SERVEROFILES) $(LOGGINGOFILES) -o servers $(LDFLAGS)
 	$(CLANG) $(CLIENTOFILES) -o client $(LDFLAGS)
 
 .PHONY: clean
@@ -17,6 +20,7 @@ clean:
 	rm -f *.o
 	rm -f servers
 	rm -f client
+	rm -f logTest
 
 .PHONY: run-client
 run-client: client
@@ -25,3 +29,11 @@ run-client: client
 .PHONY: run-server
 run-server: servers
 	./servers
+
+
+#for testing logging#
+.PHONY: test-log
+test-log:
+	$(COMPILE) $(LOGGINGFILES) loggermain.cpp
+	$(CLANG) $(LOGGINGOFILES) loggermain.o -o logTest
+	./logTest 

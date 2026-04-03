@@ -1,24 +1,14 @@
 #ifndef DATASERVER_H
 #define DATASERVER_H
-#include "controlserver.h"
-#include <queue>
-#include <utility> //has pair
-#include <vector>
-#include <err.h>
-#include <arpa/inet.h>
-#include <filesystem>
-#include <regex>
+#include "baseserver.h"
+#define DATAPORT 8081
 /*
 SERVER GOALS:
 copying files from server a to client b
 */ 
-class DataServer{
+class DataServer: public BaseServer{
     private:
-        struct stat sb; //for file reading
-        int port = 8081;
         int numConnections;
-        std::vector<int> connections; 
-        int ConnectionServerSocket;
         void DOWNLOAD(int socket,const char* file);
         void UPLOAD(int socket,const char* file);
         int countExistingfiles(std::string p);

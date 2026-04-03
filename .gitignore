@@ -1,0 +1,15 @@
+# files
+*.py
+forClient/*
+files/*
+*.o
+logTest
+client
+/pythonTesting/*
+servers
+
+# folders
+/logs
+/feature progress
+/forClient
+/pthonTesting
