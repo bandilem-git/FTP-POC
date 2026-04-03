@@ -49,6 +49,7 @@ class BaseServer{
         void notify(CONNECTIONS connection, Log l);
         BaseServer(int port);
         virtual void start() = 0;
+        virtual ~BaseServer();
     protected:
         //shared 
         struct stat sb;
