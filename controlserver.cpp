@@ -66,7 +66,7 @@ void ControlServer::start(){
                         files = getListOfFilesUnsafe();
 
                     }
-                    this->notify(CONTROL, Log(LOG,std::to_string(socket) + "CLIENT REQUESTED LIST OF COMMANDS"));
+                    this->notify(CONTROL, Log(LOG,std::to_string(socket) + " - CLIENT REQUESTED LIST OF COMMANDS"));
                     if(send(socket, files.c_str(), files.size(), 0) < 0){
                         this->notify(CONTROL, Log(ERROR,"COULD NOT SEND THE LIST TO THE CLIENT"));
                         close(socket);
@@ -187,8 +187,6 @@ void ControlServer::start(){
             catch(std::exception& e){
                 std::cout << e.what() << std::endl;
             }
-            this->notify(CONTROL, Log(LOG, "Thread ended for socket: " + std::to_string(socket)));
-            close(socket);
         }, clientSocket);
         
         t.detach();
