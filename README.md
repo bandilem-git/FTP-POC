@@ -1,7 +1,7 @@
 # FTP: Proof Of Concept
 
-This repo is a 'Proof Of Concept' project. 
-The aim of this project is to resimulate basic FTP over a network
+This repo is a 'Proof Of Concept' project.   
+The aim of this project is to resimulate basic FTP over a network   
 
 ## REQUIREMENTS
 compiler : clang++
