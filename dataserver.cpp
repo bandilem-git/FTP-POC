@@ -18,12 +18,15 @@ void DataServer::start(){
         this->notify(DATA, Log(LOG, "Thread started for data socket: " + std::to_string(socket)));
         try    //get the name of the file that you want to clone
         {   char buffer[1024] = {0};
-            if(recv(socket, buffer, 128 ,0) < 0){
+            int bytes = recv(socket, buffer, sizeof(buffer), 0);
+            if(bytes <= 0){
+                this->notify(DATA, Log(ERROR, "Failed to receive header"));
                 close(socket);
-                throw std::runtime_error("error while reading what file to download");
+                return;
             }
+
+            std::string toClone(buffer, bytes);
             //convert char [] to str
-            std::string toClone = (buffer);
             this->notify(DATA, Log(LOG, std::to_string(socket) + " RAW HEADER: " + toClone));
             size_t colonPos = toClone.find(":");
             if (colonPos == std::string::npos) {
@@ -38,11 +41,13 @@ void DataServer::start(){
             this->notify(DATA, Log(LOG, std::to_string(socket) + " TYPE: " + type + " FILE: " + fileEx));
 
             if(type == "DOWNLOAD"){
-                this->notify(DATA, Log(LOG,std::to_string(socket) + " DOWNLOAD requested: " + toClone));
-                this->notify(DATA, Log(LOG,"Opening file: files/" + toClone));
+                this->notify(DATA, Log(LOG,std::to_string(socket) + " DOWNLOAD requested: " + fileEx));
+                this->notify(DATA, Log(LOG,"Opening file: files/" + fileEx));
                 DOWNLOAD(socket,fileEx.c_str());
             }
             else if(type == "UPLOAD"){
+                this->notify(DATA, Log(LOG,std::to_string(socket) + " UPLOAD requested: " + fileEx));
+                this->notify(DATA, Log(LOG,"Opening file: files/" + fileEx));   
                 UPLOAD(socket,fileEx.c_str());
             }
 
@@ -107,26 +112,33 @@ void DataServer::DOWNLOAD(int socket,const char* file){
         }
 
         char chunk[4096];
-
+        int64_t sent = 0;
         while(toDownload.read(chunk, sizeof(chunk))){
-            if(send(socket,chunk,toDownload.gcount(),0) < 0){
+            
+            int64_t s = send(socket,chunk,toDownload.gcount(),0);
+            if(s < 0){
                 close(socket);//g count = numchars extracted
                 throw std::runtime_error("DATASERVER: cannot send file bytes");
             }
+            sent+=s;
+            this->notify(DATA, Log(DOWNLOADING,"Progress: " + std::to_string(sent) + "/" + std::to_string(fileSize)));
         }
 
         // handle the last partial chunk after the loop exits
         if(send(socket, chunk, toDownload.gcount(), 0) < 0){
+            this->notify(DATA, Log(ERROR," COULD NOT SEND LAST CHUNK"));
             close(socket);//g count = numchars extracted
             throw std::runtime_error("DATASERVER: cannot send file");
         };
 
+        this->notify(DATA, Log(LOG,"Download complete: " + toClone));
         toDownload.close();
         close(socket);
     }           
 }
 
 void DataServer::UPLOAD(int socket,const char* file){
+    this->notify(DATA, Log(UPLOADING," UPLOADING INITIATED"));
     //const char* to std::string
     std::string fn = file;
     //find backslash
@@ -138,8 +150,10 @@ void DataServer::UPLOAD(int socket,const char* file){
     // store the size in the size of upload file var (sizeOfUpFile)
     if(recv(socket, &sizeOfUpFile, sizeof(int64_t),MSG_WAITALL) < 0){ // WAITALL ensures you get all 8 bytes
         close(socket);
+        this->notify(DATA,Log(ERROR,"COULD NOT GET THE SIZE OF THE FILE"));
         throw std::runtime_error("DATASERVER: cannot get size of file from CLIENT");
     }
+    this->notify(DATA,Log(LOG, "RECEIVED THE SIZE OF THE FILE: " + std::to_string(sizeOfUpFile)));
 
     bool originalname = true;
     int i = countExistingfiles(fileName); // if any files have the same name 
@@ -151,31 +165,39 @@ void DataServer::UPLOAD(int socket,const char* file){
         fileNoExt += std::to_string(i)+=Extension;
         fileName = fileNoExt;
     };
-
+    this->notify(DATA, Log(LOG,"FILE NAME PROCESSED"));
     //upload every file to "files/file.fileExtension" name 
     std::ofstream toUpload("files/"+fileName, std::ios::binary);
     //check if it was possible to create
     if(!toUpload.is_open()){
+        this->notify(DATA, Log(ERROR,"FILE COULD NOT BE PROCESSED: "+ fileName));
+
         close(socket);
         throw std::runtime_error("DATASERVER: could not open file : files/" + fileName);  
     }
     //chunks
     char chunk[4096] ={0};
     int64_t totalReceived = 0;
+    this->notify(DATA,Log(UPLOADING, "UPLOAD PROCESS BEGINNING"));
     while(totalReceived < sizeOfUpFile){
         int bytesRec = recv(socket,chunk, sizeof(chunk),0);
         if(bytesRec < 0){
+            this->notify(DATA, Log(ERROR,"COULD NOT UPLOAD THE WHOLE FILE"));
             close(socket);
             throw std::runtime_error("DATASERVER: Error while copying files");
         }
         toUpload.write(chunk,bytesRec);
         totalReceived+= bytesRec;
+        this->notify(DATA,Log(UPLOADING, std::to_string(totalReceived) + " Bytes out of "+ std::to_string(sizeOfUpFile)));
     }
+    
     close(socket);
     toUpload.close();
 }
 
 int DataServer::countExistingfiles(std::string p){
+    this->notify(DATA, Log(LOG,"Checking existing files for: " + p));
+
     int count = 0;
     if(std::filesystem::exists(p)){
         count++;
@@ -213,6 +235,7 @@ int DataServer::countExistingfiles(std::string p){
             count++;
         }
     }
+    this->notify(DATA, Log(LOG,"Existing file count: " + std::to_string(count)));
     return count;
 
 }
