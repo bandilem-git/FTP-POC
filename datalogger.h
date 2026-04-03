@@ -7,7 +7,7 @@ class DataLogger: public BaseLogger{
         std::string target;
     public:
         DataLogger(std::string target);
-        void onEvent(Log log);
+        void onEvent(Log& log);
 };
 
 #endif

@@ -5,7 +5,7 @@ ControlLogger::ControlLogger(std::string target) : BaseLogger(target, ""){//Base
     this->generateLog(STARTUP, target, "CONTROL CHANNEL STARTING UP\n");
 }
 
-void ControlLogger::onEvent(Log log){
+void ControlLogger::onEvent(Log& log){
     //log fault assume all data in log is correct
     //write at the end
     generateLog(log.getSTATUS(),target, log.getDescription());

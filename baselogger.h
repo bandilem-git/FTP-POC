@@ -21,7 +21,7 @@ class BaseLogger{
     public:
 
         BaseLogger(std::string target, std::string desc);
-        virtual void onEvent(Log log) = 0;
+        virtual void onEvent(Log& log) = 0;
         void generateLog(STATUS status, std::string target, std::string desc);
         std::string getDesc();
         virtual ~BaseLogger();

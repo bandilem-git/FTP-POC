@@ -9,7 +9,7 @@ class ControlLogger : public BaseLogger{
         std::string target;
     public:
         ControlLogger(std::string target);
-        void onEvent(Log log);
+        void onEvent(Log& log);
 };
 
 #endif

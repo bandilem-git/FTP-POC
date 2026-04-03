@@ -5,7 +5,7 @@ DataLogger::DataLogger(std::string target) : BaseLogger(target, ""){//Base Logge
     this->generateLog(STARTUP, target, "DATA CONNECTION STARTING UP\n");
 }
 
-void DataLogger::onEvent(Log log){
+void DataLogger::onEvent(Log& log){
     //log fault assume all data in log is correct
     //write at the end
     generateLog(log.getSTATUS(),target, log.getDescription());
