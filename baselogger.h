@@ -16,6 +16,7 @@ class BaseLogger{
     private:
         std::string targetFile; //stores the file that we are logging into
         std::string desc; //description, no need to format alr done with log 
+        std::mutex loggerLock;
         //TODO: add subscribe
         
     public:
