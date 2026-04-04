@@ -1,7 +1,7 @@
-#include "controlserver.h"
-ControlServer::ControlServer() : BaseServer(CONTROLPORT){}
+#include "controlconnection.h"
+ControlConnection::ControlConnection() : BaseConnection(CONTROLPORT){}
 
-void ControlServer::start(){
+void ControlConnection::start(){
     while(true){
         try{
         //accepting client connection
@@ -203,7 +203,7 @@ void ControlServer::start(){
     }
 }
 
-bool ControlServer::fileExists(std::string x){
+bool ControlConnection::fileExists(std::string x){
     this->notify(CONTROL, Log(LOG, "LOCK ACQUIRED for file list"));
     this->notify(CONTROL, Log(LOG,"FILE SEARCH INITIATED"));
     std::lock_guard<std::mutex> lck(mtx);
@@ -221,7 +221,7 @@ bool ControlServer::fileExists(std::string x){
     return false;
 }
 
-std::string ControlServer::getavailableCommands(){
+std::string ControlConnection::getavailableCommands(){
     std::lock_guard<std::mutex> lck(mtx);
     const char*  toRead = "FTPCMDS.txt";
     std::ifstream fileToRead(toRead);
@@ -237,7 +237,7 @@ std::string ControlServer::getavailableCommands(){
 
 }
 
-std::string ControlServer::getListOfFiles(){  
+std::string ControlConnection::getListOfFiles(){  
     this->notify(CONTROL, Log(LOG, "LOCK ACQUIRED for file list"));
     std::lock_guard<std::mutex> lck(mtx);
     std::string finalListOfFiles = "";
@@ -249,7 +249,7 @@ std::string ControlServer::getListOfFiles(){
     return finalListOfFiles;
 }
 
-void ControlServer::update(){
+void ControlConnection::update(){
     existingFiles.clear();
 
     std::string fileDirectory = "files/";
@@ -275,14 +275,14 @@ void ControlServer::update(){
     }
 }
 
-int ControlServer::getNumFiles(){
+int ControlConnection::getNumFiles(){
     this->notify(CONTROL, Log(LOG, "LOCK ACQUIRED for Number of Files list"));    
 
     std::lock_guard<std::mutex> lck(mtx);
     return existingFiles.size();
 }
 
-std::string ControlServer::getListOfFilesUnsafe(){   
+std::string ControlConnection::getListOfFilesUnsafe(){   
     std::string finalListOfFiles = "";
 
     for(const std::string& x: existingFiles){

@@ -1,12 +1,12 @@
 #ifndef DATASERVER_H
 #define DATASERVER_H
-#include "baseserver.h"
+#include "baseconnection.h"
 #define DATAPORT 8081
 /*
 SERVER GOALS:
 copying files from server a to client b
 */ 
-class DataServer: public BaseServer{
+class DataServer: public BaseConnection{
     private:
         int numConnections;
         void DOWNLOAD(int socket,const char* file);

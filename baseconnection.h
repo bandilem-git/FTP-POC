@@ -1,5 +1,5 @@
-#ifndef BASESERVER_H
-#define BASESERVER_H
+#ifndef BASECONNECTION_H
+#define BASECONNECTION_H
 
 //system
 #include <sys/socket.h>
@@ -40,16 +40,16 @@ enum CONNECTIONS{
     DATA
 };
 
-class BaseServer{
+class BaseConnection{
     private:
         std::map<CONNECTIONS,std::vector<BaseLogger*>> observers;
         void BindAndListen(int port);
     public:
         void subscribe(CONNECTIONS type ,BaseLogger* observer);
         void notify(CONNECTIONS connection, Log l);
-        BaseServer(int port);
+        BaseConnection(int port);
         virtual void start() = 0;
-        virtual ~BaseServer();
+        virtual ~BaseConnection();
     protected:
         //shared 
         struct stat sb;

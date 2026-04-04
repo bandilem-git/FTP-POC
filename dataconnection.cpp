@@ -1,4 +1,4 @@
-#include "dataserver.h"
+#include "dataconnection.h"
 
 //every time theres a connection add them to a queue of people that 
 DataServer::DataServer() : BaseServer(DATAPORT){}
@@ -27,7 +27,7 @@ void DataServer::start(){
 
             std::string toClone(buffer, bytes);
             //convert char [] to str
-            this->notify(DATA, Log(LOG, std::to_string(socket) + " RAW HEADER: " + toClone));
+            this->notify(DATA, Log(LOG, std::to_string(socket) + " RAW HEADER: " + toClone.substr(0,toClone.length()-1)));
             size_t colonPos = toClone.find(":");
             if (colonPos == std::string::npos) {
                 std::cout << "Invalid header received: " << toClone << std::endl;

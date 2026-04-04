@@ -1,14 +1,14 @@
-#include "baseserver.h" 
+#include "baseconnection.h" 
 
-void BaseServer::subscribe(CONNECTIONS type, BaseLogger* observer){
+void BaseConnection::subscribe(CONNECTIONS type, BaseLogger* observer){
     observers[type].push_back(observer);
 }
 
-BaseServer::BaseServer(int port){
+BaseConnection::BaseConnection(int port){
     BindAndListen(port);
 }
 
-void BaseServer::BindAndListen(int port){
+void BaseConnection::BindAndListen(int port){
     std::printf("Atempting to listen to PORT: %d",port); 
 
     //ConnectionServer Address
@@ -44,10 +44,10 @@ void BaseServer::BindAndListen(int port){
 
 }
 
-void BaseServer::notify(CONNECTIONS connection, Log log){
+void BaseConnection::notify(CONNECTIONS connection, Log log){
     for(BaseLogger* x: observers[connection]){
         x->onEvent(log);
     }
 }
 
-BaseServer::~BaseServer(){}
+BaseConnection::~BaseConnection(){}
