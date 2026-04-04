@@ -9,8 +9,9 @@ LOGGINGFILES := log.cpp baselogger.cpp controllogger.cpp datalogger.cpp loggerma
 LOGGINGOFILES:=log.o baselogger.o controllogger.o datalogger.o 
 
 .PHONY: all
-all: 
-	$(COMPILE) $(LOGGINGFILES)  $(SERVERFILES)
+all:
+	$(COMPILE) $(LOGGINGFILES) 
+	$(COMPILE) $(SERVERFILES)
 	$(COMPILE) $(CLIENTFILES)
 	$(CLANG) $(SERVEROFILES) $(LOGGINGOFILES) -o servers $(LDFLAGS)
 	$(CLANG) $(CLIENTOFILES) -o client $(LDFLAGS)
