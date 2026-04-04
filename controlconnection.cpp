@@ -85,14 +85,25 @@ void ControlConnection::start(){
                     //inform client about available files
                     this->notify(CONTROL, Log(LOG,std::to_string(socket) + " - PHASE 1: CLIENT REQUESTED FILE"));
                     std::string templateString;
+                                        //catch no files
+                    if(getNumFiles() == 0){
+                        this->notify(CONTROL,Log(LOG,"no files available for transfer"));
+                        std::string errResp = "FAIL\n";
+                        if(send(socket,errResp.c_str(),errResp.size(),0) < 0){
+                            this->notify(CONTROL,Log(ERROR,"could not send FAIL response"));
+                        }
+                        continue;
+                    }
+
+                    this->notify(CONTROL, Log(LOG, "LOCK ACQUIRED for file list"));
+
                     {
                         std::lock_guard<std::mutex> lck(mtx);
                         update();
                         templateString = "\nAvailable Files:\n";
                         templateString += getListOfFilesUnsafe();
                     }    
-                    this->notify(CONTROL, Log(LOG, "LOCK ACQUIRED for file list"));
-                
+
                     templateString+="\n";
                     templateString+="enter name of the file that you want (case sensitive)\n";
 
