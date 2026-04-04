@@ -370,7 +370,7 @@ void listhandle(int clientSocket){
 }
 
 void cmdhandle(int clientSocket){
-    char buffer[1024];
+    char buffer[1024] ={0};
 
     if(recv(clientSocket, buffer, sizeof(buffer),0) < 0){
         close(clientSocket);
