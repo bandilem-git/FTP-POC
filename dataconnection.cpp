@@ -1,9 +1,9 @@
-#include "dataserver.h"
+#include "dataconnection.h"
 
 //every time theres a connection add them to a queue of people that 
-DataServer::DataServer() : BaseServer(DATAPORT){}
+DataConnection::DataConnection() : BaseConnection(DATAPORT){}
  
-void DataServer::start(){
+void DataConnection::start(){
     while (true){
         try{
         int tp = (accept(ConnectionServerSocket, nullptr, nullptr));
@@ -27,7 +27,7 @@ void DataServer::start(){
 
             std::string toClone(buffer, bytes);
             //convert char [] to str
-            this->notify(DATA, Log(LOG, std::to_string(socket) + " RAW HEADER: " + toClone));
+            this->notify(DATA, Log(LOG, std::to_string(socket) + " RAW HEADER: " + toClone.substr(0,toClone.length()-1)));
             size_t colonPos = toClone.find(":");
             if (colonPos == std::string::npos) {
                 std::cout << "Invalid header received: " << toClone << std::endl;
@@ -72,12 +72,8 @@ void DataServer::start(){
     }
 }
 
-void DataServer::DOWNLOAD(int socket,const char* file){  
+void DataConnection::DOWNLOAD(int socket,const char* file){  
     std::string toClone(file);
-    
-    std::cout << "Downloading file: " << toClone<< std::endl; 
-
-    if(toClone.find(".")!= std::string::npos){
         //remove '\n' or '\r\n'
         std::string terminatingChars = toClone.substr(toClone.length()-2,2);
         if(terminatingChars == "\r\n"){
@@ -106,9 +102,9 @@ void DataServer::DOWNLOAD(int socket,const char* file){
         toDownload.seekg(0, std::ios::beg);
 
         //send the size of the file
-        if(write(socket, (const char*)& fileSize , sizeof(fileSize))< 0){
+        if(send(socket, (const char*)& fileSize , sizeof(fileSize),0)< 0){
             close(socket);//g count = numchars extracted
-            throw std::runtime_error("DATASERVER: cannot send file size");
+            throw std::runtime_error("DataConnection: cannot send file size");
         }
 
         char chunk[4096];
@@ -117,7 +113,7 @@ void DataServer::DOWNLOAD(int socket,const char* file){
             int64_t s = send(socket,chunk,toDownload.gcount(),0);
             if(s < 0){
                 close(socket);//g count = numchars extracted
-                throw std::runtime_error("DATASERVER: cannot send file bytes");
+                throw std::runtime_error("DataConnection: cannot send file bytes");
             }
             sent+=s;
             this->notify(DATA, Log(DOWNLOADING,"Progress: " + std::to_string(sent) + "/" + std::to_string(fileSize)));
@@ -127,16 +123,15 @@ void DataServer::DOWNLOAD(int socket,const char* file){
         if(send(socket, chunk, toDownload.gcount(), 0) < 0){
             this->notify(DATA, Log(ERROR," COULD NOT SEND LAST CHUNK"));
             close(socket);//g count = numchars extracted
-            throw std::runtime_error("DATASERVER: cannot send file");
+            throw std::runtime_error("DataConnection: cannot send file");
         };
 
         this->notify(DATA, Log(LOG,"Download complete: " + toClone));
         toDownload.close();
         close(socket);
-    }           
-}
+}           
 
-void DataServer::UPLOAD(int socket,const char* file){
+void DataConnection::UPLOAD(int socket,const char* file){
     this->notify(DATA, Log(UPLOADING," UPLOADING INITIATED"));
     //const char* to std::string
     std::string fn = file;
@@ -150,28 +145,19 @@ void DataServer::UPLOAD(int socket,const char* file){
     if(recv(socket, &sizeOfUpFile, sizeof(int64_t),MSG_WAITALL) < 0){ // WAITALL ensures you get all 8 bytes
         close(socket);
         this->notify(DATA,Log(ERROR,"COULD NOT GET THE SIZE OF THE FILE"));
-        throw std::runtime_error("DATASERVER: cannot get size of file from CLIENT");
+        throw std::runtime_error("DataConnection: cannot get size of file from CLIENT");
     }
     this->notify(DATA,Log(LOG, "RECEIVED THE SIZE OF THE FILE: " + std::to_string(sizeOfUpFile)));
 
-    int i = countExistingfiles(fileName); // if any files have the same name 
-
-    if(i > 0){
-        int dotPos = fileName.find(".");
-        std::string fileNoExt = fileName.substr(0, dotPos);
-        std::string Extension = fileName.substr(dotPos);
-        fileNoExt += std::to_string(i)+=Extension;
-        fileName = fileNoExt;
-    };
     this->notify(DATA, Log(LOG,"FILE NAME PROCESSED"));
     //upload every file to "files/file.fileExtension" name 
-    std::ofstream toUpload("files/"+fileName, std::ios::binary);
+    std::ofstream toUpload("files/"+fileRenameProcess(fileName), std::ios::binary);
     //check if it was possible to create
     if(!toUpload.is_open()){
         this->notify(DATA, Log(ERROR,"FILE COULD NOT BE PROCESSED: "+ fileName));
 
         close(socket);
-        throw std::runtime_error("DATASERVER: could not open file : files/" + fileName);  
+        throw std::runtime_error("DataConnection: could not open file : files/" + fileName);  
     }
     //chunks
     char chunk[4096] ={0};
@@ -208,47 +194,20 @@ void DataServer::UPLOAD(int socket,const char* file){
     toUpload.close();
 }
 
-int DataServer::countExistingfiles(std::string p){
-    this->notify(DATA, Log(LOG,"Checking existing files for: " + p));
+std::string DataConnection::fileRenameProcess(std::string p){
+    int posOfDot = p.find_last_of('.');
+    std::string parts[2]= {p.substr(0,posOfDot),p.substr(posOfDot)};
 
-    int count = 0;
-    if(std::filesystem::exists(p)){
-        count++;
-    }
-    std::vector<std::string> f;
-    try{
-        for(const auto& e : std::filesystem::directory_iterator("files/")){
-            std::filesystem::path out = e.path();
-            std::string outfilename_str = out.string();
-            const char* path = outfilename_str.c_str();
-
-            if (stat(path, &sb) == 0 && !(sb.st_mode & S_IFDIR)){
-                std::string p(path);
-                f.push_back(p.substr(6,p.length()));
-            }
-        }
-    }
-    catch(const std::exception& e){
-        std::cerr << "Directory error: " << e.what() << std::endl;
-    }
-    
-    //temp solution
-    for(std::string& x: f){
-        if(x[0] == p[0]){
-            //if files length is less than new file its obviuously not the same file
-            if(x.length() < p.length()){
+    if(std::filesystem::exists("files/" + p)){
+        int count = 1;
+        while(true){
+            if(std::filesystem::exists("files/"+parts[0]+"_"+std::to_string(count))){
+                count++;
                 continue;
-            }
-            //iterate through each char for the same len as p since at this poit x len >= p len
-            for(int i = 0; i < p.length();i++){
-                if(p[i]!= x[i]){//x = file1 p =  file
-                    continue;
-                }
-            }
-            count++;
-        }
+            };
+            break;
+        }  
+        return parts[0]+"_"+std::to_string(count)+parts[1]; 
     }
-    this->notify(DATA, Log(LOG,"Existing file count: " + std::to_string(count)));
-    return count;
-
+    return parts[0]+parts[1];
 }

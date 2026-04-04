@@ -1,14 +1,14 @@
-#ifndef CONTROLSERVER_H
-#define CONTROLSERVER_H
+#ifndef CONTROLCONNECTION_H
+#define ControlConnection_H
 
-#include "baseserver.h"
+#include "baseconnection.h"
 #define CONTROLPORT 8080
 
 /*
 Server class: emulating (CONTROL SERVER)FILE TRANSFER PROTOCOL in C++17
 */
 
-class ControlServer : public BaseServer{
+class ControlConnection : public BaseConnection{
     private:
 
         std::string getListOfFiles();
@@ -20,7 +20,7 @@ class ControlServer : public BaseServer{
     public:
     
         std::mutex mtx;
-        ControlServer();
+        ControlConnection();
         std::string getavailableCommands();
         void start();
         std::string getListOfFilesUnsafe();//threaded operations

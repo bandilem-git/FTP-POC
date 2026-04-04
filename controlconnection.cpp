@@ -1,7 +1,7 @@
-#include "controlserver.h"
-ControlServer::ControlServer() : BaseServer(CONTROLPORT){}
+#include "controlconnection.h"
+ControlConnection::ControlConnection() : BaseConnection(CONTROLPORT){}
 
-void ControlServer::start(){
+void ControlConnection::start(){
     while(true){
         try{
         //accepting client connection
@@ -85,14 +85,25 @@ void ControlServer::start(){
                     //inform client about available files
                     this->notify(CONTROL, Log(LOG,std::to_string(socket) + " - PHASE 1: CLIENT REQUESTED FILE"));
                     std::string templateString;
+                                        //catch no files
+                    if(getNumFiles() == 0){
+                        this->notify(CONTROL,Log(LOG,"no files available for transfer"));
+                        std::string errResp = "FAIL\n";
+                        if(send(socket,errResp.c_str(),errResp.size(),0) < 0){
+                            this->notify(CONTROL,Log(ERROR,"could not send FAIL response"));
+                        }
+                        continue;
+                    }
+
+                    this->notify(CONTROL, Log(LOG, "LOCK ACQUIRED for file list"));
+
                     {
                         std::lock_guard<std::mutex> lck(mtx);
                         update();
                         templateString = "\nAvailable Files:\n";
                         templateString += getListOfFilesUnsafe();
                     }    
-                    this->notify(CONTROL, Log(LOG, "LOCK ACQUIRED for file list"));
-                
+
                     templateString+="\n";
                     templateString+="enter name of the file that you want (case sensitive)\n";
 
@@ -203,12 +214,10 @@ void ControlServer::start(){
     }
 }
 
-bool ControlServer::fileExists(std::string x){
+bool ControlConnection::fileExists(std::string x){
     this->notify(CONTROL, Log(LOG, "LOCK ACQUIRED for file list"));
     this->notify(CONTROL, Log(LOG,"FILE SEARCH INITIATED"));
     std::lock_guard<std::mutex> lck(mtx);
-
-    std::cout << "COMPARING INITIATED" << std::endl;
 
     for(const std::string& y : existingFiles){
         if(y == x){
@@ -221,7 +230,7 @@ bool ControlServer::fileExists(std::string x){
     return false;
 }
 
-std::string ControlServer::getavailableCommands(){
+std::string ControlConnection::getavailableCommands(){
     std::lock_guard<std::mutex> lck(mtx);
     const char*  toRead = "FTPCMDS.txt";
     std::ifstream fileToRead(toRead);
@@ -237,7 +246,7 @@ std::string ControlServer::getavailableCommands(){
 
 }
 
-std::string ControlServer::getListOfFiles(){  
+std::string ControlConnection::getListOfFiles(){  
     this->notify(CONTROL, Log(LOG, "LOCK ACQUIRED for file list"));
     std::lock_guard<std::mutex> lck(mtx);
     std::string finalListOfFiles = "";
@@ -249,7 +258,7 @@ std::string ControlServer::getListOfFiles(){
     return finalListOfFiles;
 }
 
-void ControlServer::update(){
+void ControlConnection::update(){
     existingFiles.clear();
 
     std::string fileDirectory = "files/";
@@ -275,14 +284,14 @@ void ControlServer::update(){
     }
 }
 
-int ControlServer::getNumFiles(){
+int ControlConnection::getNumFiles(){
     this->notify(CONTROL, Log(LOG, "LOCK ACQUIRED for Number of Files list"));    
 
     std::lock_guard<std::mutex> lck(mtx);
     return existingFiles.size();
 }
 
-std::string ControlServer::getListOfFilesUnsafe(){   
+std::string ControlConnection::getListOfFilesUnsafe(){   
     std::string finalListOfFiles = "";
 
     for(const std::string& x: existingFiles){

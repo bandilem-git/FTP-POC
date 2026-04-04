@@ -1,9 +1,5 @@
 # files
 *.py
-<<<<<<< HEAD
-=======
-forClient/*
->>>>>>> a6206b5fe047e6795d1527fd4796043e6e7b9135
 files/*
 *.o
 logTest
@@ -15,9 +11,5 @@ servers
 /logs
 /feature progress
 /forClient
-<<<<<<< HEAD
 /pythonTesting
 /forClient
-=======
-/pthonTesting
->>>>>>> a6206b5fe047e6795d1527fd4796043e6e7b9135

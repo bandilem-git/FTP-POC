@@ -1,6 +1,6 @@
 COMPILE:= clang++ -c -std=c++17
-SERVERFILES:= baseserver.cpp controlserver.cpp dataserver.cpp servers.cpp
-SERVEROFILES:= baseserver.o controlserver.o dataserver.o servers.o 
+SERVERFILES:= baseconnection.cpp controlconnection.cpp dataconnection.cpp servers.cpp
+SERVEROFILES:= baseconnection.o controlconnection.o dataconnection.o servers.o 
 CLIENTFILES:= client.cpp
 CLIENTOFILES:= client.o
 CLANG:= clang++
@@ -9,8 +9,9 @@ LOGGINGFILES := log.cpp baselogger.cpp controllogger.cpp datalogger.cpp loggerma
 LOGGINGOFILES:=log.o baselogger.o controllogger.o datalogger.o 
 
 .PHONY: all
-all: 
-	$(COMPILE) $(LOGGINGFILES)  $(SERVERFILES)
+all:
+	$(COMPILE) $(LOGGINGFILES) 
+	$(COMPILE) $(SERVERFILES)
 	$(COMPILE) $(CLIENTFILES)
 	$(CLANG) $(SERVEROFILES) $(LOGGINGOFILES) -o servers $(LDFLAGS)
 	$(CLANG) $(CLIENTOFILES) -o client $(LDFLAGS)

@@ -1,15 +1,17 @@
-#include "baseserver.h" 
+#include "baseconnection.h" 
 
-void BaseServer::subscribe(CONNECTIONS type, BaseLogger* observer){
+void BaseConnection::subscribe(CONNECTIONS type, BaseLogger* observer){
+    //pushing observer to their type
     observers[type].push_back(observer);
 }
 
-BaseServer::BaseServer(int port){
+BaseConnection::BaseConnection(int port){
+    //binds and listens
     BindAndListen(port);
 }
 
-void BaseServer::BindAndListen(int port){
-    std::printf("Atempting to listen to PORT: %d",port); 
+void BaseConnection::BindAndListen(int port){
+    std::cout << to_yellow("Atempting to listen to PORT: ") << to_white(std::to_string(port)) << std::endl; 
 
     //ConnectionServer Address
     //sockadde is the data type that stores network information
@@ -20,19 +22,21 @@ void BaseServer::BindAndListen(int port){
 
 
     //binding
-    std::cout << to_yellow("ATTEMPRING TO BIND TO PORT: ") << port << std::endl;
+    std::cout << to_yellow("ATTEMPTING TO BIND TO PORT: ") << port << std::endl;
+    
     if(bind(
         ConnectionServerSocket,
         (struct sockaddr*) &ConnectionServerAddress,
         sizeof(ConnectionServerAddress)
     ) < 0){
-        std::cout << to_red("COULD NOT LISTEN ON PORT: ") << port;
+        std::cout << to_red("COULD NOT LISTEN ON PORT: ") << port<< std::endl;
         close(ConnectionServerSocket);
         throw std::runtime_error("error while binding for incoming clients");
     }
-    std::cout << to_green("BINDING to port ") + to_white(std::to_string(port)) +to_green(" COMPLETE\n");
 
-    std::cout << to_yellow("ATTEMPRING TO LISTEN ON PORT: ") << port << std::endl;
+    std::cout << to_green("BINDING to port ") + to_white(std::to_string(port)) +to_green(" COMPLETE") << std::endl;
+
+    std::cout << to_yellow("ATTEMPTING TO LISTEN ON PORT: ") << port << std::endl;
 
     //listening for incoming conns
     if(listen(ConnectionServerSocket, 5) < 0){
@@ -40,14 +44,14 @@ void BaseServer::BindAndListen(int port){
         close(ConnectionServerSocket);
         throw std::runtime_error("error while listening for incoming clients");
     };
-    std::cout << to_green("NOW LISTENING on port ") + to_white(std::to_string(port)) +to_green(" COMPLETE\n");
+    std::cout << to_green("NOW LISTENING on port ") + to_white(std::to_string(port)) +to_green(" COMPLETE") << std::endl;
 
 }
 
-void BaseServer::notify(CONNECTIONS connection, Log log){
+void BaseConnection::notify(CONNECTIONS connection, Log log){
     for(BaseLogger* x: observers[connection]){
         x->onEvent(log);
     }
 }
 
-BaseServer::~BaseServer(){}
+BaseConnection::~BaseConnection(){}

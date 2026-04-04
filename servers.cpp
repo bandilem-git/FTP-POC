@@ -1,5 +1,5 @@
-#include "dataserver.h"
-#include "controlserver.h"
+#include "dataconnection.h"
+#include "controlconnection.h"
 #include "controllogger.h"
 #include "datalogger.h"
 #include <thread>
@@ -26,8 +26,8 @@ int main(){
     ControlLogger ctrlLOGS("controlconnection");
     DataLogger dataLOGS("dataconnection");
 
-    DataServer dataserver;
-    ControlServer controlserver;
+    DataConnection dataserver;
+    ControlConnection controlserver;
 
     dataserver.subscribe(DATA, &dataLOGS);
     controlserver.subscribe(CONTROL, &ctrlLOGS);
