@@ -13,16 +13,6 @@
 //data connection
 #define DATAPORT 8081
 
-//count the number of spaces in a string 
-int countSpaces(std::string x){
-    int toRet = 0;
-    for(int i = 0 ; i < x.length(); i++){
-        if(x[i] == ' '){
-            toRet++;
-        }
-    }
-    return toRet;
-}
 
 //remove all white spaces in the word so [a b c  ]becomes [abc]
 std::string to_trim(std::string x){
@@ -340,7 +330,7 @@ void uploadhandle(int clientSocket){
         //debugging line
         // std::cout << "acknowledgement message: " + ackMSG << std::endl;
 
-        if(ackMSG != "OK"){
+        if(ackMSG.substr(0,2)!= "OK"){
             std::cout << to_red("CLIENT ERROR: non OK msg from Connection Control");
             return;
         }
