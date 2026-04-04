@@ -247,8 +247,13 @@ int main(){
                 throw std::runtime_error("CLIENT: Could not receive message from Elsewhere");
             }
             //show client the list 
+            
+            if(std::string(buffer) == "FAIL\n"){
+                std::cout << "NO FILES AVAILABLE FOR DOWNLOAD" << std::endl;
+                continue;
+            }
+            
             std::cout << buffer;
-
             //choose a file
             std::string chosenFile;
             std::getline(std::cin,chosenFile);
