@@ -13,9 +13,6 @@
 //data connection
 #define DATAPORT 8081
 
-// glocbal stuct stat sb
-struct stat sb;
-
 //count the number of spaces in a string 
 int countSpaces(std::string x){
     int toRet = 0;
@@ -29,24 +26,8 @@ int countSpaces(std::string x){
 
 //remove all white spaces in the word so [a b c  ]becomes [abc]
 std::string to_trim(std::string x){
-    int spaces = countSpaces(x);// count the number of spaces
-
-    // final size of string is og length minus spaces 
-    int finalSize = x.length() - spaces+1;
-    
-    //new place to store word
-    char* fixedCharArr = new char[finalSize];
-    int j = 0;
-    //iterate through all of the characters and incrementally insert them into char arr
-    for(int i = 0; i < x.length(); i++){
-        if(x[i] == ' ') continue;
-        fixedCharArr[j++] = x[i];
-    }
-    //return as a string 
-    fixedCharArr[j] = '\0';
-    std::string toRet(fixedCharArr);
-    delete[] fixedCharArr;
-    return toRet;
+    int firstNonBlankPos = x.find_first_not_of(" \t\r\n");//position of first non blank element
+    return x.substr(firstNonBlankPos,x.find_last_not_of(" \t\r\n") - firstNonBlankPos + 1);
 }
 
 void downloadThroughDataConnection(int port, const char* file){ 
@@ -256,6 +237,8 @@ void downloadhandle(int clientSocket){
 }
 
 void uploadhandle(int clientSocket){
+    // glocbal stuct stat sb
+    struct stat sb;
     //decide on which file should be upload
     std::string fileDirectory;
 
