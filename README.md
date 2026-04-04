@@ -14,6 +14,8 @@ The architecture uses a dual-channel design:
 Control server (commands and control flow)
 Data server (file transfer operations)
 
+TO RUN ON LINUX: REMOVE #INCLUDE <sys/edian>
+
 ## Requirements
 
 - Compiler: clang++
@@ -44,6 +46,7 @@ Build all components:
 > Terminal 1 : make run-server
 > Terminal 2 : make run-client 
 3. In the same terminal as **make run-client**
+
 ## 2. Available Commands
 
 Once the client is running, you can use the following primary commands:
