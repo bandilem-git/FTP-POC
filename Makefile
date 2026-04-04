@@ -1,6 +1,6 @@
 COMPILE:= clang++ -c -std=c++17
-SERVERFILES:= baseserver.cpp controlserver.cpp dataserver.cpp servers.cpp
-SERVEROFILES:= baseserver.o controlserver.o dataserver.o servers.o 
+SERVERFILES:= baseconnection.cpp controlconnection.cpp dataconnection.cpp servers.cpp
+SERVEROFILES:= baseconnection.o controlconnection.o dataconnection.o servers.o 
 CLIENTFILES:= client.cpp
 CLIENTOFILES:= client.o
 CLANG:= clang++

@@ -6,14 +6,14 @@
 SERVER GOALS:
 copying files from server a to client b
 */ 
-class DataServer: public BaseConnection{
+class DataConnection: public BaseConnection{
     private:
         int numConnections;
         void DOWNLOAD(int socket,const char* file);
         void UPLOAD(int socket,const char* file);
         int countExistingfiles(std::string p);
     public:
-        DataServer();//opens it up for connection
+        DataConnection();//opens it up for connection
         void start();
  
 };

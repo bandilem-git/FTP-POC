@@ -1,9 +1,9 @@
 #include "dataconnection.h"
 
 //every time theres a connection add them to a queue of people that 
-DataServer::DataServer() : BaseServer(DATAPORT){}
+DataConnection::DataConnection() : BaseConnection(DATAPORT){}
  
-void DataServer::start(){
+void DataConnection::start(){
     while (true){
         try{
         int tp = (accept(ConnectionServerSocket, nullptr, nullptr));
@@ -72,7 +72,7 @@ void DataServer::start(){
     }
 }
 
-void DataServer::DOWNLOAD(int socket,const char* file){  
+void DataConnection::DOWNLOAD(int socket,const char* file){  
     std::string toClone(file);
     
     std::cout << "Downloading file: " << toClone<< std::endl; 
@@ -108,7 +108,7 @@ void DataServer::DOWNLOAD(int socket,const char* file){
         //send the size of the file
         if(write(socket, (const char*)& fileSize , sizeof(fileSize))< 0){
             close(socket);//g count = numchars extracted
-            throw std::runtime_error("DATASERVER: cannot send file size");
+            throw std::runtime_error("DataConnection: cannot send file size");
         }
 
         char chunk[4096];
@@ -117,7 +117,7 @@ void DataServer::DOWNLOAD(int socket,const char* file){
             int64_t s = send(socket,chunk,toDownload.gcount(),0);
             if(s < 0){
                 close(socket);//g count = numchars extracted
-                throw std::runtime_error("DATASERVER: cannot send file bytes");
+                throw std::runtime_error("DataConnection: cannot send file bytes");
             }
             sent+=s;
             this->notify(DATA, Log(DOWNLOADING,"Progress: " + std::to_string(sent) + "/" + std::to_string(fileSize)));
@@ -127,7 +127,7 @@ void DataServer::DOWNLOAD(int socket,const char* file){
         if(send(socket, chunk, toDownload.gcount(), 0) < 0){
             this->notify(DATA, Log(ERROR," COULD NOT SEND LAST CHUNK"));
             close(socket);//g count = numchars extracted
-            throw std::runtime_error("DATASERVER: cannot send file");
+            throw std::runtime_error("DataConnection: cannot send file");
         };
 
         this->notify(DATA, Log(LOG,"Download complete: " + toClone));
@@ -136,7 +136,7 @@ void DataServer::DOWNLOAD(int socket,const char* file){
     }           
 }
 
-void DataServer::UPLOAD(int socket,const char* file){
+void DataConnection::UPLOAD(int socket,const char* file){
     this->notify(DATA, Log(UPLOADING," UPLOADING INITIATED"));
     //const char* to std::string
     std::string fn = file;
@@ -150,7 +150,7 @@ void DataServer::UPLOAD(int socket,const char* file){
     if(recv(socket, &sizeOfUpFile, sizeof(int64_t),MSG_WAITALL) < 0){ // WAITALL ensures you get all 8 bytes
         close(socket);
         this->notify(DATA,Log(ERROR,"COULD NOT GET THE SIZE OF THE FILE"));
-        throw std::runtime_error("DATASERVER: cannot get size of file from CLIENT");
+        throw std::runtime_error("DataConnection: cannot get size of file from CLIENT");
     }
     this->notify(DATA,Log(LOG, "RECEIVED THE SIZE OF THE FILE: " + std::to_string(sizeOfUpFile)));
 
@@ -171,7 +171,7 @@ void DataServer::UPLOAD(int socket,const char* file){
         this->notify(DATA, Log(ERROR,"FILE COULD NOT BE PROCESSED: "+ fileName));
 
         close(socket);
-        throw std::runtime_error("DATASERVER: could not open file : files/" + fileName);  
+        throw std::runtime_error("DataConnection: could not open file : files/" + fileName);  
     }
     //chunks
     char chunk[4096] ={0};
@@ -208,7 +208,7 @@ void DataServer::UPLOAD(int socket,const char* file){
     toUpload.close();
 }
 
-int DataServer::countExistingfiles(std::string p){
+int DataConnection::countExistingfiles(std::string p){
     this->notify(DATA, Log(LOG,"Checking existing files for: " + p));
 
     int count = 0;
