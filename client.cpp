@@ -13,6 +13,9 @@
 //data connection
 #define DATAPORT 8081
 
+// glocbal stuct stat sb
+struct stat sb;
+
 //count the number of spaces in a string 
 int countSpaces(std::string x){
     int toRet = 0;
@@ -197,48 +200,7 @@ void uploadThroughDataConnection (int port, const char* file){
 
 }
 
-int main(){
-    struct stat sb;
-
-    int clientSocket = socket(AF_INET, SOCK_STREAM, 0);
-
-    if(clientSocket < 0 ){
-        throw std::runtime_error("CLIENT: client could not connect");
-    }
-
-    sockaddr_in serverAddress;
-    serverAddress.sin_port = htons(8080);
-    serverAddress.sin_family = AF_INET;
-
-    if(inet_pton(AF_INET, "127.0.0.1",&serverAddress.sin_addr)<0){
-        close(clientSocket);
-        throw std::runtime_error("CLIENT: ERROR WHILE CONNECTING TO DATA CONNECTION");
-    } 
-    
-    if(connect(clientSocket, (struct sockaddr*) &serverAddress, sizeof(serverAddress)) < 0){
-        close(clientSocket);
-        throw std::runtime_error("CLIENT: Error whiile trying to connect ");
-    }
-    std::string in;
-
-    while(true){
-        //clear stream
-        std::cin.clear();
-        //read in whatever is typed in
-        std::getline(std::cin,in);
-        //remove any spaces
-        in = to_trim(in);
-        //attach newline symbol
-        in+="\n";
-
-        // always send whatever input is attached
-        if(send(clientSocket,in.c_str(),in.size(),0) < 0){
-            close(clientSocket);
-            throw std::runtime_error("CLIENT: Could not send \""+ in + "\" from client to server");
-        }
-        
-        //if download is called 
-        if(in == "down\n"){
+void downloadhandle(int clientSocket){
             std::cin.clear();
             //receive list of files you can download, type beat
             char buffer[1024] = {0};
@@ -250,7 +212,7 @@ int main(){
             
             if(std::string(buffer) == "FAIL\n"){
                 std::cout << "NO FILES AVAILABLE FOR DOWNLOAD" << std::endl;
-                continue;
+                return;
             }
             
             std::cout << buffer;
@@ -291,149 +253,206 @@ int main(){
             else{
                 std::cout << parts[0]<<std::endl;
             }
+}
+
+void uploadhandle(int clientSocket){
+    //decide on which file should be upload
+    std::string fileDirectory;
+
+    //let user decide on the directory (should allow for copy and paste)
+    std::cout << "Enter a directory: " << std::endl;
+    std::getline(std::cin,fileDirectory);
+            
+    //checking that directory exists    
+    //filedirectory
+    std::filesystem::path p = fileDirectory;
+
+    //edge case: "/" was not added
+    if(fileDirectory[fileDirectory.length()-1] !='/'){
+        fileDirectory+="/";
+        }
+            
+    //using filesystem (c++17 feature)
+    if(!std::filesystem::exists(p)){
+        std::cout << "FILE PATH: " << to_red(fileDirectory) << " DOES NOT EXIST" << std::endl;
+        return;
+    }
+
+    //tell client that it was valid
+    std::cout << to_green(fileDirectory + " is a valid directory" +"\n");
+
+    //files in the directory as a vector 
+    std::vector<std::string> f_s;
+
+    //reading all files in the directory
+    try{
+        for(const auto& e : std::filesystem::directory_iterator(fileDirectory)){
+            std::filesystem::path out = e.path();
+            std::string outfilename_str = out.string();
+            const char* path = outfilename_str.c_str();
+
+            if (stat(path, &sb) == 0 && !(sb.st_mode & S_IFDIR)){
+                std::string p(path);
+                f_s.push_back(p.substr(fileDirectory.length()));
+                }
+            }
+        }
+        catch(const std::exception& e){
+            std::cerr << "Directory error: " << e.what() << std::endl;
+        }
+
+        //list the avail files
+        std::cout << "\nAvailable files: "<<std::endl;
+        std::string visFiles = "";
+
+        //if there are no files in the directory then start over
+        if(f_s.empty()){
+            std::cout << "No files are available"<< std::endl;
+            std::cout << to_yellow("Cancelling upload operation") << std::endl;
+            return;
+        }
+        
+        //for printing purposes
+        for(std::string& x : f_s){
+            visFiles+=x+"\n";
+        }
+        //print what is available
+        std::cout << visFiles;
+            
+        //selecting file to upload
+        std::cout << "Select file to upload: "<< std::endl;
+
+        //chosen file
+        std::string choice;
+        std::getline(std::cin,choice);
+
+        //removes the spaces... pray that they don't have spaces, i'll account for spaces later
+        choice = to_trim(choice);
+            
+        //check if the file being selected exists
+        bool found = false;
+
+        for(const std::string& file : f_s){
+            if(file == choice){
+                found = true;
+                break;
+            }
+        }
+
+        //if not found start over 
+        if(!found){
+            std::cout << to_red("FILE DOES NOT EXIST")<< std::endl;
+            std::cout << to_yellow("CANCELLING OPERATION")<< std::endl;
+            return;
+        }
+
+        char buffer[1024] ={0};
+        if(recv(clientSocket, buffer, sizeof(buffer),0) < 0){
+            close(clientSocket);
+            throw std::runtime_error("CLIENT: could not receive acceptance");
+        }
+            
+        std::string ackMSG(buffer);
+
+        //debugging line
+        // std::cout << "acknowledgement message: " + ackMSG << std::endl;
+
+        if(ackMSG != "OK"){
+            std::cout << to_red("CLIENT ERROR: non OK msg from Connection Control");
+            return;
+        }
+
+        std::string dir_path = fileDirectory + choice;
+        std::filesystem::path path = dir_path;
+        int64_t size = 0;
+
+        try{
+            size = std::filesystem::file_size(path);
+        }
+        catch(const std::filesystem::filesystem_error& e){
+            std::cerr << "File size error: " << e.what() << std::endl;
+            close(clientSocket);
+            return;
+        }
+        uploadThroughDataConnection(DATAPORT, dir_path.c_str());
+}
+
+void listhandle(int clientSocket){
+    char buffer[1024] = {0};
+    if(recv(clientSocket,buffer,sizeof(buffer),0) < 0){
+    close(clientSocket);
+    throw std::runtime_error("CLIENT: Could not receive message from Elsewhere");
+    }
+    std::cout << buffer;
+}
+
+void cmdhandle(int clientSocket){
+    char buffer[1024];
+
+    if(recv(clientSocket, buffer, sizeof(buffer),0) < 0){
+        close(clientSocket);
+        throw std::runtime_error("CLIENT: could not fetch commands");
+    }
+    std::cout << buffer << std::endl;
+}
+
+int main(){
+
+    int clientSocket = socket(AF_INET, SOCK_STREAM, 0);
+
+    if(clientSocket < 0 ){
+        throw std::runtime_error("CLIENT: client could not connect");
+    }
+
+    sockaddr_in serverAddress;
+    serverAddress.sin_port = htons(8080);
+    serverAddress.sin_family = AF_INET;
+
+    if(inet_pton(AF_INET, "127.0.0.1",&serverAddress.sin_addr)<0){
+        close(clientSocket);
+        throw std::runtime_error("CLIENT: ERROR WHILE CONNECTING TO DATA CONNECTION");
+    } 
+    
+    if(connect(clientSocket, (struct sockaddr*) &serverAddress, sizeof(serverAddress)) < 0){
+        close(clientSocket);
+        throw std::runtime_error("CLIENT: Error whiile trying to connect ");
+    }
+    std::string in;
+
+    while(true){
+        //clear stream
+        std::cin.clear();
+        //read in whatever is typed in
+        std::getline(std::cin,in);
+        //remove any spaces
+        in = to_trim(in);
+        //attach newline symbol
+        in+="\n";
+
+        // always send whatever input is attached
+        if(send(clientSocket,in.c_str(),in.size(),0) < 0){
+            close(clientSocket);
+            throw std::runtime_error("CLIENT: Could not send \""+ in + "\" from client to server");
+        }
+        
+        //if download is called 
+        if(in == "down\n"){
+            downloadhandle(clientSocket);
         }
         
         //if upload is called
         if(in == "up\n"){
-            //decide on which file should be upload
-            std::string fileDirectory;
-            //let user decide on the directory (should allow for copy and paste)
-            std::cout << "Enter a directory: " << std::endl;
-            std::getline(std::cin,fileDirectory);
-            
-            //checking that directory exists    
-            //filedirectory
-            std::filesystem::path p = fileDirectory;
-
-            //edge case: "/" was not added
-            if(fileDirectory[fileDirectory.length()-1] !='/'){
-                fileDirectory+="/";
-            }
-            
-            //using filesystem (c++17 feature)
-            if(!std::filesystem::exists(p)){
-                std::cout << "FILE PATH: " << to_red(fileDirectory) << " DOES NOT EXIST" << std::endl;
-                continue;
-            }
-
-            //tell client that it was valid
-            std::cout << to_green(fileDirectory + " is a valid directory" +"\n");
-
-            //files in the directory as a vector 
-            std::vector<std::string> f_s;
-
-            //reading all files in the directory
-            try{
-                for(const auto& e : std::filesystem::directory_iterator(fileDirectory)){
-                    std::filesystem::path out = e.path();
-                    std::string outfilename_str = out.string();
-                    const char* path = outfilename_str.c_str();
-
-                    if (stat(path, &sb) == 0 && !(sb.st_mode & S_IFDIR)){
-                        std::string p(path);
-                        f_s.push_back(p.substr(fileDirectory.length()));
-                    }
-                }
-            }
-            catch(const std::exception& e){
-                std::cerr << "Directory error: " << e.what() << std::endl;
-            }
-
-            //list the avail files
-            std::cout << "\nAvailable files: "<<std::endl;
-            std::string visFiles = "";
-
-            //if there are no files in the directory then start over
-            if(f_s.empty()){
-                std::cout << "No files are available"<< std::endl;
-                std::cout << to_yellow("Cancelling upload operation") << std::endl;
-                continue;
-            }
-            //for printing purposes
-            for(std::string& x : f_s){
-                visFiles+=x+"\n";
-            }
-            //print what is available
-            std::cout << visFiles;
-            
-            //selecting file to upload
-            std::cout << "Select file to upload: "<< std::endl;
-
-            //chosen file
-            std::string choice;
-            std::getline(std::cin,choice);
-
-            //removes the spaces... pray that they don't have spaces, i'll account for spaces later
-            choice = to_trim(choice);
-            
-            //check if the file being selected exists
-            bool found = false;
-
-            for(const std::string& file : f_s){
-                if(file == choice){
-                    found = true;
-                    break;
-                }
-            }
-
-            //if not found start over 
-            if(!found){
-                std::cout << to_red("FILE DOES NOT EXIST")<< std::endl;
-                std::cout << to_yellow("CANCELLING OPERATION")<< std::endl;
-                continue;
-            }
-
-            char buffer[1024] ={0};
-            if(recv(clientSocket, buffer, sizeof(buffer),0) < 0){
-                close(clientSocket);
-                throw std::runtime_error("CLIENT: could not receive acceptance");
-            }
-            
-            std::string ackMSG(buffer);
-
-            //debugging line
-            std::cout << "acknowledgement message: " + ackMSG << std::endl;
-
-            if(ackMSG != "OK"){
-                std::cout << to_red("CLIENT ERROR: non OK msg from Connection Control");
-                continue;
-            }
-
-            std::string dir_path = fileDirectory + choice;
-            std::filesystem::path path = dir_path;
-            int64_t size = 0;
-
-            try{
-                size = std::filesystem::file_size(path);
-            }
-            catch(const std::filesystem::filesystem_error& e){
-                std::cerr << "File size error: " << e.what() << std::endl;
-                close(clientSocket);
-                continue;
-            }
-            uploadThroughDataConnection(DATAPORT, dir_path.c_str());
-
+            uploadhandle(clientSocket);
         }
 
         //if list is called
         if(in == "ls\n"){
-            char buffer[1024] = {0};
-            if(recv(clientSocket,buffer,sizeof(buffer),0) < 0){
-                close(clientSocket);
-                throw std::runtime_error("CLIENT: Could not receive message from Elsewhere");
-            }
-            std::cout << buffer;
+            listhandle(clientSocket);
         }
         
         //list commands
         if(in == "cmds\n"){
-            char buffer[1024];
-
-            if(recv(clientSocket, buffer, sizeof(buffer),0) < 0){
-                close(clientSocket);
-                throw std::runtime_error("CLIENT: could not fetch commands");
-            }
-            std::cout << buffer << std::endl;
+            cmdhandle(clientSocket);
         }
         
         //quitting
