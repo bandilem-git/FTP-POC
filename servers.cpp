@@ -2,6 +2,7 @@
 #include "controlserver.h"
 #include "controllogger.h"
 #include "datalogger.h"
+#include <thread>
 
 int main(){
     //ensure the files directory always exists
@@ -40,8 +41,9 @@ int main(){
         controlserver.start();
 
     });
-    dataServerThread.join();
+    dataServerThread.detach();
 
-    connectionServerThread.join();
+    connectionServerThread.detach();
+    while(true) std::this_thread::sleep_for(std::chrono::seconds(1));
     return 0;
 }

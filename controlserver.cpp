@@ -61,19 +61,23 @@ void ControlServer::start(){
                     std::string files;
                     {// lock and do what you have to 
                         std::lock_guard<std::mutex> lck(mtx);
-                        this->notify(CONTROL, Log(LOG, "LOCK ACQUIRED for file list"));
                         update();
                         files = getListOfFilesUnsafe();
 
                     }
+                    this->notify(CONTROL, Log(LOG, "LOCK ACQUIRED for file list"));
+
                     this->notify(CONTROL, Log(LOG,std::to_string(socket) + " - CLIENT REQUESTED LIST OF COMMANDS"));
+                    
+                    if(files == ""){
+                        files = "No files on the server.\n";
+                    }
+
                     if(send(socket, files.c_str(), files.size(), 0) < 0){
                         this->notify(CONTROL, Log(ERROR,"COULD NOT SEND THE LIST TO THE CLIENT"));
                         close(socket);
                         throw std::runtime_error("COULD NOT SEND THE LIST TO THE CLIENT");
                     }
-
-
                 }
 
                 // files to download
@@ -83,11 +87,12 @@ void ControlServer::start(){
                     std::string templateString;
                     {
                         std::lock_guard<std::mutex> lck(mtx);
-                        this->notify(CONTROL, Log(LOG, "LOCK ACQUIRED for file list"));
                         update();
                         templateString = "\nAvailable Files:\n";
                         templateString += getListOfFilesUnsafe();
-                    }                    
+                    }    
+                    this->notify(CONTROL, Log(LOG, "LOCK ACQUIRED for file list"));
+                
                     templateString+="\n";
                     templateString+="enter name of the file that you want (case sensitive)\n";
 
@@ -199,19 +204,18 @@ void ControlServer::start(){
 }
 
 bool ControlServer::fileExists(std::string x){
-    std::lock_guard<std::mutex> lck(mtx);
     this->notify(CONTROL, Log(LOG, "LOCK ACQUIRED for file list"));
     this->notify(CONTROL, Log(LOG,"FILE SEARCH INITIATED"));
+    std::lock_guard<std::mutex> lck(mtx);
+
     std::cout << "COMPARING INITIATED" << std::endl;
 
     for(const std::string& y : existingFiles){
         if(y == x){
-            this->notify(CONTROL, Log(LOG,"FILE FOUND"));
             std::cout << "FILE HAS BEEN FOUND HENCE TRANSFER IS INITIATING " << std::endl;
             return true;
         }
     }
-    this->notify(CONTROL, Log(LOG,"FILE WAS NOT FOUND"));
 
     std::cout << "FILE CANNOT BE FOUND HENCE NO TRANSFER" << std::endl;
     return false;
@@ -219,7 +223,6 @@ bool ControlServer::fileExists(std::string x){
 
 std::string ControlServer::getavailableCommands(){
     std::lock_guard<std::mutex> lck(mtx);
-    this->notify(CONTROL, Log(LOG, "LOCK ACQUIRED for file list"));
     const char*  toRead = "FTPCMDS.txt";
     std::ifstream fileToRead(toRead);
 
@@ -234,9 +237,9 @@ std::string ControlServer::getavailableCommands(){
 
 }
 
-std::string ControlServer::getListOfFiles(){   
-    std::lock_guard<std::mutex> lck(mtx);
+std::string ControlServer::getListOfFiles(){  
     this->notify(CONTROL, Log(LOG, "LOCK ACQUIRED for file list"));
+    std::lock_guard<std::mutex> lck(mtx);
     std::string finalListOfFiles = "";
 
     for(const std::string& x: existingFiles){
@@ -247,7 +250,6 @@ std::string ControlServer::getListOfFiles(){
 }
 
 void ControlServer::update(){
-     this->notify(CONTROL, Log(LOG, "Refreshing file list"));
     existingFiles.clear();
 
     std::string fileDirectory = "files/";
@@ -259,7 +261,6 @@ void ControlServer::update(){
             const char* path = outfilename_str.c_str();
 
             if (stat(path, &sb) != 0) {
-                this->notify(DATA, Log(ERROR, "Stat failed for " + std::string(path) + ": " + strerror(errno)));
                 continue;
             }
             if (stat(path, &sb) == 0 && !(sb.st_mode & S_IFDIR)){
@@ -272,12 +273,12 @@ void ControlServer::update(){
     catch(const std::exception& e){
         std::cerr << "Directory error: " << e.what() << std::endl;
     }
-        this->notify(CONTROL, Log(LOG, "Files found: " + std::to_string(existingFiles.size())));
 }
 
 int ControlServer::getNumFiles(){
-    std::lock_guard<std::mutex> lck(mtx);
     this->notify(CONTROL, Log(LOG, "LOCK ACQUIRED for Number of Files list"));    
+
+    std::lock_guard<std::mutex> lck(mtx);
     return existingFiles.size();
 }
 
