@@ -219,8 +219,6 @@ bool ControlConnection::fileExists(std::string x){
     this->notify(CONTROL, Log(LOG,"FILE SEARCH INITIATED"));
     std::lock_guard<std::mutex> lck(mtx);
 
-    std::cout << "COMPARING INITIATED" << std::endl;
-
     for(const std::string& y : existingFiles){
         if(y == x){
             std::cout << "FILE HAS BEEN FOUND HENCE TRANSFER IS INITIATING " << std::endl;

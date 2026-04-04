@@ -11,7 +11,7 @@ class DataConnection: public BaseConnection{
         int numConnections;
         void DOWNLOAD(int socket,const char* file);
         void UPLOAD(int socket,const char* file);
-        int countExistingfiles(std::string p);
+        std::string fileRenameProcess(std::string p);
     public:
         DataConnection();//opens it up for connection
         void start();
