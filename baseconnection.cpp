@@ -1,15 +1,17 @@
 #include "baseconnection.h" 
 
 void BaseConnection::subscribe(CONNECTIONS type, BaseLogger* observer){
+    //pushing observer to their type
     observers[type].push_back(observer);
 }
 
 BaseConnection::BaseConnection(int port){
+    //binds and listens
     BindAndListen(port);
 }
 
 void BaseConnection::BindAndListen(int port){
-    std::printf("Atempting to listen to PORT: %d",port); 
+    std::cout << to_yellow("Atempting to listen to PORT: ") << to_white(std::to_string(port)) << std::endl; 
 
     //ConnectionServer Address
     //sockadde is the data type that stores network information
