@@ -13,7 +13,7 @@
 
 //C based include
 #include <cstdlib>
-
+#include <cstring>
 //files
 #include <filesystem>
 
