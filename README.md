@@ -14,8 +14,6 @@ The architecture uses a dual-channel design:
 Control server (commands and control flow)
 Data server (file transfer operations)
 
-TO RUN ON LINUX: REMOVE #INCLUDE <sys/edian>
-
 ## Requirements
 
 - Compiler: clang++

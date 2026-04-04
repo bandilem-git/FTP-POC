@@ -7,9 +7,8 @@
 #include <sstream>
 #include <sys/stat.h>
 #include <filesystem>
-#include <sys/endian.h>
 #include "COLORS.h"
-//TUE MAR 31 22:07 onward goal : ACC MGMT USER and ANON support 
+
 //data connection
 #define DATAPORT 8081
 
