@@ -5,7 +5,7 @@ CLIENTFILES:= client.cpp
 CLIENTOFILES:= client.o
 CLANG:= clang++
 LDFLAGS:= -lpthread
-LOGGINGFILES := log.cpp baselogger.cpp controllogger.cpp datalogger.cpp loggermain.cpp
+LOGGINGFILES := log.cpp baselogger.cpp controllogger.cpp datalogger.cpp
 LOGGINGOFILES:=log.o baselogger.o controllogger.o datalogger.o 
 
 .PHONY: all
