@@ -12,6 +12,7 @@
 #include "COLORS.h"
 
 /**
+ * @file baselogger.h
  * @class BaseLogger
  * @brief parent class of different type of loggers
  * @author Bandile Mnyandu

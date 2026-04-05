@@ -4,44 +4,45 @@
 #include "baseconnection.h"
 #define CONTROLPORT 8080
 
-/*
-Server class: emulating (CONTROL SERVER)FILE TRANSFER PROTOCOL in C++17
-*/
+/**
+ * @file controlconnection.h
+ * @author Bandile Mnyandu
+ */
 
 class ControlConnection : public BaseConnection{
     private:
         /**
-         * @brief function that gets a list of available files in the 'files folder'
-         * @returns newline sparated list of files
-         */
+        * @brief function that gets a list of available files in the 'files folder'
+        * @returns newline sparated list of files
+        */
         std::string getListOfFiles();
 
         /**
-         * @brief number of files int the 'files folder'
-         * @returns gets the number of files in the 'files folder'
-         */
+        * @brief number of files int the 'files folder'
+        * @returns gets the number of files in the 'files folder'
+        */
         int getNumFiles();
 
         /**
-         * @brief checks if the file exists 
-         * @returns true / false
-         */
+        * @brief checks if the file exists 
+        * @returns true / false
+        */
         bool fileExists(std::string x);
 
         /**
-         * @brief list of already existing files
-         * @returns A vector of file names 
-         */
+        * @brief list of already existing files
+        * @returns A vector of file names 
+        */
         std::vector<std::string> existingFiles;
         /**
-         * @brief updates the existingFiles variable
-         */
+        * @brief updates the existingFiles variable
+        */
         void update();
 
     public:
         /**
-         * @brief for easier access to lock
-         */
+        * @brief for easier access to lock
+        */
         std::mutex mtx;
 
         /**

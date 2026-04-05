@@ -1,6 +1,7 @@
 #ifndef BASECONNECTION_H
 #define BASECONNECTION_H
 /**
+ * @file baseconnection.h
  * @author Bandile Mnyandu 
  * 
  */

@@ -6,6 +6,7 @@ logTest
 client
 /pythonTesting/*
 servers
+Doxyfile
 
 # folders
 /logs
