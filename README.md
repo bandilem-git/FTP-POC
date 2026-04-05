@@ -41,7 +41,7 @@ Build all components:
 ### Starting the system
 1. Compile files using the current MAKEFILE
 2. Open two separate terminals 
-> Terminal 1 : make run-server
+> Terminal 1 : make run-server  
 > Terminal 2 : make run-client 
 3. In the same terminal as **make run-client**
 
