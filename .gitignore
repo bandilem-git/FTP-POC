@@ -6,6 +6,7 @@ logTest
 client
 /pythonTesting/*
 servers
+Doxyfile
 
 # folders
 /logs
@@ -13,3 +14,5 @@ servers
 /forClient
 /pythonTesting
 /forClient
+/html
+/latex
