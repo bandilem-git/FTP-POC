@@ -4,6 +4,12 @@
 #include <iostream>
 #include <string>
 
+/**
+ * @file COLORS.h
+ * @brief ANSI escape code color formatting utilities for colored terminal output
+ * @author Bandile Mnyandu
+ */
+
 inline std::string to_black(std::string x){
     return("\033[30m"+x+"\033[0m");
 }

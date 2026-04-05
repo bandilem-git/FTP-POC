@@ -14,6 +14,7 @@
 /**
  * @class BaseLogger
  * @brief parent class of different type of loggers
+ * @author Bandile Mnyandu
  */
 
 class BaseLogger{
