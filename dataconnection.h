@@ -3,7 +3,7 @@
 #include "baseconnection.h"
 #define DATAPORT 8081
 /*
-SERVER GOALS:
+DATA CONNECTION 
 copying files from server a to client b
 */ 
 class DataConnection: public BaseConnection{
