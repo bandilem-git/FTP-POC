@@ -7,6 +7,7 @@
  * @file controllogger.h
  * @class ControlLogger
  * @brief Logger for the control connection — writes control channel events to a log file
+ * @author Bandile Mnyandu
  */
 class ControlLogger : public BaseLogger{
     private:
