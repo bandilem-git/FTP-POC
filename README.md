@@ -28,7 +28,7 @@ Build all components:
 ### BUILDING PROJECT
 
 ### NOTE
-> In WSL run make all-wsl 
+> In WSL run make all-wsl   
 > on MacOS run make all 
 
 #### RUN SERVERS
