@@ -6,6 +6,7 @@
  * @file datalogger.h
  * @class DataLogger
  * @brief Logger for the data connection — writes file transfer events to a log file
+ * @author Bandile Mnyandu
  */
 
 class DataLogger: public BaseLogger{
