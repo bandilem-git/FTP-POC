@@ -1,4 +1,6 @@
 COMPILE:= clang++ -c -std=c++17
+GCC:= g++ -c -stc=c++17
+G:= g++
 SERVERFILES:= baseconnection.cpp controlconnection.cpp dataconnection.cpp servers.cpp
 SERVEROFILES:= baseconnection.o controlconnection.o dataconnection.o servers.o 
 CLIENTFILES:= client.cpp
@@ -38,3 +40,11 @@ test-log:
 	$(COMPILE) $(LOGGINGFILES) loggermain.cpp
 	$(CLANG) $(LOGGINGOFILES) loggermain.o -o logTest
 	./logTest 
+
+.PHONY: all-wsl
+all-wsl:
+	$(GCC) $(LOGGINGFILES) 
+	$(GCC) $(SERVERFILES)
+	$(GCC) $(CLIENTFILES)
+	$(G) $(SERVEROFILES) $(LOGGINGOFILES) -o servers $(LDFLAGS)
+	$(G) $(CLIENTOFILES) -o client $(LDFLAGS)
