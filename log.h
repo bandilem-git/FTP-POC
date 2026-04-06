@@ -10,6 +10,7 @@
 /**
  * @file log.h
  * @brief Log entry class and STATUS enum for the logging system
+ * @author Bandile Mnyandu
  */
 
  /**
