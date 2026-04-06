@@ -5,6 +5,7 @@
 /**
 * @file dataconnection.h
 * @brief Data connection server — handles file uploads and downloads on port 8081
+* @author Bandile Mnyandu
 */
 
 /**
