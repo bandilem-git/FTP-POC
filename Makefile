@@ -1,5 +1,5 @@
 COMPILE:= clang++ -c -std=c++17
-GCC:= g++ -c -stc=c++17
+GCC:= g++ -c -std=c++17
 G:= g++
 SERVERFILES:= baseconnection.cpp controlconnection.cpp dataconnection.cpp servers.cpp
 SERVEROFILES:= baseconnection.o controlconnection.o dataconnection.o servers.o 
