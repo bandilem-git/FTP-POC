@@ -23,8 +23,8 @@ int main(){
     }
 
     //startup loggers
-    ControlLogger ctrlLOGS("controlconnection");
-    DataLogger dataLOGS("dataconnection");
+    ControlLogger ctrlLOGS("controlconnection.txt");
+    DataLogger dataLOGS("dataconnection.txt");
 
     DataConnection dataserver;
     ControlConnection controlserver;
