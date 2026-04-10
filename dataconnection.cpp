@@ -27,7 +27,7 @@ void DataConnection::start(){
 
             std::string toClone(buffer, bytes);
             //convert char [] to str
-            this->notify(DATA, Log(LOG, std::to_string(socket) + " RAW HEADER: " + toClone.substr(0,toClone.length()-1)));
+            this->notify(DATA, Log(LOG, std::to_string(socket) + " RAW HEADER: " + toClone.substr(0,toClone.length())));
             size_t colonPos = toClone.find(":");
             if (colonPos == std::string::npos) {
                 std::cout << "Invalid header received: " << toClone << std::endl;
