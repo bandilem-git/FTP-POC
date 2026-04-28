@@ -3,11 +3,10 @@
 This repo is a 'FTP **Proof Of Concept**' project.   
 The aim of this project is to resimulate basic FTP over a network   
 
-*this is a component for a bigger project*
 
 ## DESCRIPTION
 This repo is a recreation of an FTP server not following all the RFC Standards but follows general convention 
-user can upload file, download files and review logs
+such as user can upload file, download files and review logs
 
 The architecture uses a dual-channel design:
 
@@ -18,8 +17,8 @@ Data server (file transfer operations)
 
 - Compiler: clang++
 - Standard: C++17
-- Recommended OS: Linux / Unix-like environment 
-- WSL 2* 
+- Runs on Linux Environments
+- Runs on Unix Enviornments
 
 ## Building the Project
 
